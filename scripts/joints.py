@@ -72,7 +72,19 @@ class Joint:
 		self.name = name
 		self.parent = parent
 
-	def create(self):
+	def create(self, oj = True, ik = False):
 		self.guide = ls(self.name + "_guide")
 		self.joint = joint(radius = 1, p = self.guide.translate.get(), n = self.name)
 		self.joint.parent(self.parent)
+
+		if(oj == True):
+			self.joint.orientJoint('yzx')
+			self.joint.secondaryAxisOrient('zup')
+		else if(oj == False):
+			self.joint.orientJoint('none')
+
+		if(ik == True):
+			self.jointIK = joint(radius = 1, p = self.guide.translate.get(), n = self.name + "_ik")
+			self.jointFK = joint(radius = 1, p = self.guide.translate.get(), n = self.name + "_fk")
+		else if(ik == False):
+			pass
