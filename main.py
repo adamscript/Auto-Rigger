@@ -1,5 +1,7 @@
 from pymel.core import *
 from scripts/guides import *
+from scripts/joints import *
+from scripts/controllers import *
 
 win = window(title="Awan's Auto Rigger")
 layout = columnLayout()

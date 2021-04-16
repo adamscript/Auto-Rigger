@@ -1,15 +1,4 @@
-class Guide:
-
-	def __init__(self, name, translate, scale, parent):
-		self.name = name
-		self.translate = translate
-		self.scale = scale
-		self.parent = parent
-
-	def create(self):
-		self.locator = spaceLocator(n = self.name, p = self.translate)
-		self.locator.scale.set([self.scale, self.scale, self.scale])
-		self.locator.parent(self.parent)
+##GUIDES##
 
 group(em = True, n = "guides")
 
@@ -30,3 +19,27 @@ jaw_guide = Guide("jaw_guide", (0, 170.281, 7.175), 5, "head_guide")
 chin_guide = Guide("chin_guide", (0, 163.448, 15.213), 5, "jaw_guide")
 l_eye_guide = Guide("l_eye_guide", (3.125, 175.471, 12.969), 1, "head_guide")
 r_eye_guide = Guide("r_eye_guide", (-3.125, 175.471, 12.969), 1, "head_guide")
+
+# ARMS #
+
+# FINGERS #
+#THUMB#
+#INDEX#
+#MIDDLE#
+#RING#
+#PINKY#
+
+# LEGS #
+
+class Guide:
+
+	def __init__(self, name, translate, scale, parent):
+		self.name = name
+		self.translate = translate
+		self.scale = scale
+		self.parent = parent
+
+	def create(self):
+		self.locator = spaceLocator(n = self.name, p = self.translate)
+		self.locator.scale.set([self.scale, self.scale, self.scale])
+		self.locator.parent(self.parent)
