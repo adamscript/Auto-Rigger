@@ -7,9 +7,9 @@ class Guide:
 		self.parent = parent
 
 	def create(self):
-		spaceLocator(n = self.name, p = self.translate)
-		scale(self.name, self.scale, self.scale, self.scale)
-		parent(self.name, self.parent)
+		self.locator = spaceLocator(n = self.name, p = self.translate)
+		self.locator.scale.set([self.scale, self.scale, self.scale])
+		self.locator.parent(self.parent)
 
 group(em = True, n = "guides")
 
