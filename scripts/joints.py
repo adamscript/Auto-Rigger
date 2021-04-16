@@ -1,10 +1,6 @@
 ##JOINTS##
 
 # SPINE #
-spine_joint = Joint("spine")
-waist_joint = Joint("waist")
-chest_joint = Joint("chest")
-sternum_joint = Joint("sternum")
 #Joint Orientation
 
 # HEAD #
