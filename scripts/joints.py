@@ -72,9 +72,9 @@ class Joint:
 		self.name = name
 		self.parent = parent
 
-	def create(self, oj = True, ik = False):
+	def create(self, oj = True, ik = False, rev = False):
 		self.guide = ls(self.name + "_guide")
-		self.joint = joint(radius = 1, p = self.guide.translate.get(), n = self.name)
+		self.joint = joint(radius = 1, p = self.guide.getTranslation(), n = self.name)
 		self.joint.parent(self.parent)
 
 		if(oj == True):
@@ -84,7 +84,15 @@ class Joint:
 			self.joint.orientJoint('none')
 
 		if(ik == True):
-			self.jointIK = joint(radius = 1, p = self.guide.translate.get(), n = self.name + "_ik")
-			self.jointFK = joint(radius = 1, p = self.guide.translate.get(), n = self.name + "_fk")
+			self.jointIK = joint(radius = 1, p = self.guide.getTranslation(), n = self.name + "_ik")
+			self.jointFK = joint(radius = 1, p = self.guide.getTranslation(), n = self.name + "_fk")
+
+			self.jointIK.ParentConstraint(self.name)
+			self.jointFK.ParentConstraint(self.name)
 		else if(ik == False):
+			pass
+
+		if(rev == True):
+			self.jointrev = joint(radius = 1, p = self.guide.getTranslation(), n = self.name + "_rev")
+		else if(rev == False):
 			pass
