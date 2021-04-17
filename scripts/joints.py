@@ -68,7 +68,7 @@ class Joint:
 		self.name = name
 		self.parent = parent
 
-	def create(self, oj = True, ik = False, rev = False):
+	def createJoint(self, oj = True, ik = False, rev = False):
 		self.guide = ls(self.name + "_guide")
 		self.joint = joint(radius = 1, p = self.guide.getTranslation(), n = self.name)
 		self.joint.parent(self.parent)

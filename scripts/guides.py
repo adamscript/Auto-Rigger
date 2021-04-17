@@ -33,13 +33,12 @@ r_eye_guide = Guide("r_eye", (-3.125, 175.471, 12.969), 1, "head")
 
 class Guide:
 
-	def __init__(self, name, translate, scale, p = guides):
+	def __init__(self, name, translate, p = guides):
 		self.name = name
 		self.translate = translate
-		self.scale = scale
 		self.parent = parent
 
-	def create(self):
+	def create(self, s = 5):
 		self.locator = spaceLocator(n = self.name + "_guide", p = self.translate)
-		self.locator.scale.set([self.scale, self.scale, self.scale])
+		self.locator.scale.set([s, s, s])
 		self.locator.parent(self.parent + "_guide")
