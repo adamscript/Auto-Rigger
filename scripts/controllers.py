@@ -73,11 +73,15 @@ class Controller:
 		#Parent Constraint
         self.ctrl.ParentConstraint(pc)
 
-    def createIKControl(self, sj, ee):
+    def createIKControl(self, sj, ee, mj):
+    	self.sj_pos = Transform().getTranslation(ls(sj))
+    	self.ee_pos = Transform().getTranslation(ls(ee))
+    	self.ee_rot = Transform().getRotation(ls(ee))
+
     	self.ctrl = MakeNurbCircle(r = 10, n = self.name + "_ik_ctrl")
     	self.ctrl_offset = MakeGroup(self.name + "_ctrl", n = self.name + "_ctrl_offset", em = True)
-    	self.ctrl_offset.Transform().setTranslation(self.translate)
-    	self.ctrl_offset.Transform().setRotation(self.translate)
+    	self.ctrl_offset.Transform().setTranslation(self.ee_pos)
+    	self.ctrl_offset.Transform().setRotation(self.ee_rot)
 
     	self.ctrl_offset.Parent(self.parent)
 
@@ -92,14 +96,22 @@ class Controller:
         self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overrideTexturing', 0)
         self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overridePlayback', 0)
 
-        self.ikpole_offset = MakeGroup(self.name + "_ik_ctrl", n = "self.name + "_ik_ctrl_offset)
-        self.ikpole_offset.Transform().setTranslation(ls(Transform().getTranslation("*_guide")))
-        self.ikpole_offset.Transform().setTranslation(0, 0, -30, ls = True, r = True)
+        self.ikpole_offset = MakeGroup(self.name + "_ik_ctrl", n = self.name + "_ik_ctrl_offset")
+        self.ikpole_offset.Transform().setTranslationX((sj_pos[0] + ee_pos[0]) / 2)
+        self.ikpole_offset.Transform().setTranslationY((sj_pos[1] + ee_pos[1]) / 2)
+        self.ikpole_offset.Transform().setTranslationZ(-30, ls = True, r = True)
         self.ikpole_offset.MakeIdentity()
         self.ikpole_offset.Parent(self.parent)
 
-        self.ikpole_curve = NurbsCurve
-        self.ikpole_cluster = Cluster
+        self.ikpole_curve = NurbsCurve(p = [Transform().getTranslation(ls(mj))], [Transform().getTranslation(self.ikpole)], d = 1, n = self.name + "_ik_ctrl_connector")
+        self.ikpole_cluster = Cluster(self.name + "_ik_ctrl_connector.cv[1]", n = self.name + "_ik_ctrl_cluster")
+        self.middlejoint_cluster = Cluster(self.name + "_ik_ctrl_connector.cv[0]", n = self.name + "_ik_ctrl_cluster")
+        self.ikpole_cluster.Parent(self.ikpole)
+        self.middlejoint_cluster.Parent(mj)
+        self.ikpole_curve.Attribute().setAttr(self.name + "_ik_ctrl_connector.overrideEnable", 1)
+        self.ikpole_curve.Attribute().setAttr(self.name + "_ik_ctrl_connector.overrideDisplayType", 2)
+
+        self.ctrl.OrientConstraint(ee + "_ik")
 
 	def edit()
 		#Edit control
