@@ -42,10 +42,14 @@ class Controller:
 		self.name = name
 		self.parent = parent
 
-	def create(self, r = 10, nr = "Y", p = self.parent + "_ctrl", *pc = self.name, ik = False):
+	def createControl(self, r = 10, nr = "Y", p = self.parent + "_ctrl", pc = self.name, fk = False):
 		#Create circle
 		self.guide = ls(self.name + "_guide")
-		self.ctrl = MakeNurbCircle(r = r, n = self.name + "_ctrl")
+
+		if(fk == True):
+			self.ctrl = MakeNurbCircle(r = r, n = self.name + "_fk_ctrl")
+		else if(fk == False):
+			self.ctrl = MakeNurbCircle(r = r, n = self.name + "_ctrl")
 
 		#Set the circle plane normal
 		if(nr == "X" || nr == "x"):
@@ -56,11 +60,48 @@ class Controller:
 			self.ctrl.setNormalZ()
 
 		#Create control offset for each control
-		self.ctrl_offset = MakeGroup(self.name + "_ctrl", n = self.name + "_ctrl_offset")
+		if(fk == True):
+			self.ctrl_offset = MakeGroup(self.name + "_fk_ctrl", n = self.name + "_fk_ctrl_offset")
+		else if(fk == False):
+			self.ctrl_offset = MakeGroup(self.name + "_ctrl", n = self.name + "_ctrl_offset")
+		
 		self.ctrl_offset.Transform().setTranslation(self.guide.getTranslation())
 		self.ctrl_offset.Transform().setRotation(self.guide.getRotation())
-		self.ctrl_offset.parent(p)
 
+		self.ctrl_offset.Parent(p)
+
+		#Parent Constraint
+        self.ctrl.ParentConstraint(pc)
+
+    def createIKControl(self, sj, ee):
+    	self.ctrl = MakeNurbCircle(r = 10, n = self.name + "_ik_ctrl")
+    	self.ctrl_offset = MakeGroup(self.name + "_ctrl", n = self.name + "_ctrl_offset", em = True)
+    	self.ctrl_offset.Transform().setTranslation(self.translate)
+    	self.ctrl_offset.Transform().setRotation(self.translate)
+
+    	self.ctrl_offset.Parent(self.parent)
+
+    	self.ikhandle = IkHandle(n = self.name + "_ikHandle", sj = sj, ee = ee)
+    	self.ikhandle.Parent(self.parent)
+
+    	self.ikpole = MakeNurbSphere(r = 3, n = self.name + "_ikPole")
+    	self.ikpole.Attribute().setAttr('makeNurbSphere1.sections', 4)
+        self.ikpole.Attribute().setAttr('makeNurbSphere1.spans', 2)
+        self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overrideEnabled', 1)
+        self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overrideShading', 0)
+        self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overrideTexturing', 0)
+        self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overridePlayback', 0)
+
+        self.ikpole_offset = MakeGroup(self.name + "_ik_ctrl", n = "self.name + "_ik_ctrl_offset)
+        self.ikpole_offset.Transform().setTranslation(ls(Transform().getTranslation("*_guide")))
+        self.ikpole_offset.Transform().setTranslation(0, 0, -30, ls = True, r = True)
+        self.ikpole_offset.MakeIdentity()
+        self.ikpole_offset.Parent(self.parent)
+
+        self.ikpole_curve = NurbsCurve
+        self.ikpole_cluster = Cluster
+
+	def edit()
 		#Edit control
 
 		#COLLARBONE
@@ -112,6 +153,3 @@ class Controller:
         	pass
 
         #End of editing
-
-        #Parent Constraint
-        self.ctrl.ParentConstraint(pc)
