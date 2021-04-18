@@ -33,3 +33,7 @@ deleterig_btn.setCommand(deleteRig)
 autorig_btn.setCommand(createRig)
 
 win.show();
+
+
+#MAKE IK, HUMANISE, AND SKIN WEIGHT A CHECKBOX OPTION
+#CREATE RIG UI
