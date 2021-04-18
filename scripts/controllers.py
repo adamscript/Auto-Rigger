@@ -80,7 +80,8 @@ class Controller:
     	self.ee_rot = Transform().getRotation(ls(ee))
     	#Create IK Control Circle
     	self.ctrl = MakeNurbCircle(r = 10, n = self.name + "_ik_ctrl")
-    	self.ctrl_offset = MakeGroup(self.name + "_ctrl", n = self.name + "_ctrl_offset", em = True)
+    	self.ctrl_offset = MakeGroup(n = self.name + "_ik_ctrl_offset", em = True)
+    	self.ctrl.Parent(self.ctrl_offset)
     	self.ctrl_offset.Transform().setTranslation(self.ee_pos)
     	self.ctrl_offset.Transform().setRotation(self.ee_rot)
 
@@ -97,7 +98,8 @@ class Controller:
         self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overrideTexturing', 0)
         self.ikpole.Attribute().setAttr(self.name + '_ik_ctrl.overridePlayback', 0)
 
-        self.ikpole_offset = MakeGroup(self.name + "_ik_ctrl", n = self.name + "_ik_ctrl_offset")
+        self.ikpole_offset = MakeGroup(n = self.name + "_ik_pole_ctrl_offset", em = True)
+        self.ikpole.Parent(self.ikpole_offset)
         self.ikpole_offset.Transform().setTranslationX(Transform().getTranslationX(ls(mj)))
         self.ikpole_offset.Transform().setTranslationY(Transform().getTranslationY(ls(mj)))
         self.ikpole_offset.Transform().setTranslationZ(-30, ls = True, r = True)
@@ -124,9 +126,50 @@ class Controller:
         #Create IK FK Toggle Text
         self.iktext = MakeTextCurves(t = "IK", f = "Lucida Sans Unicode", n = self.name + "_IK_lttr")
         self.fktext = MakeTextCurves(t = "FK", f = "Lucida Sans Unicode", n = self.name + "_FK_lttr")
-
         
+        self.iktextshape = ls(self.name + "_IK_lttrShape")
+        self.iktextshape.Transform().setTranslation(Transform().getTranslation(ls(self.iktoggle)
+        self.iktextshape.Transform().setScale(7, 7, 7)
+        self.iktextshape.Parent(self.iktoggle)
+        self.iktextshape.Attribute().setAttr(self.name + "_IK_lttrShape.overrideEnabled", 1)
+        self.iktextshape.Attribute().setAttr(self.name + "_IK_lttrShape.overrideDisplayType", 2)
 
+        self.fktextshape = ls(self.name + "_FK_lttrShape")
+        self.fktextshape.Transform().setTranslation(Transform().getTranslation(ls(self.iktoggle)
+        self.fktextshape.Transform().setScale(7, 7, 7)
+        self.fktextshape.Parent(self.iktoggle)
+        self.fktextshape.Attribute().setAttr(self.name + "_FK_lttrShape.overrideEnabled", 1)
+        self.fktextshape.Attribute().setAttr(self.name + "_FK_lttrShape.overrideDisplayType", 2)
+
+        #Create ikfk offset
+        self.iktoggle_offset = MakeGroup(n = self.name + "_ikfk_toggle_ctrl_offset")
+        self.iktoggle.Parent(self.iktoggle_offset)
+        self.iktoggle_offset.Transform().setTranslation(ls(ee))
+        self.iktoggle_offset.Transform().setTranslation(0, 10, -20)
+        self.iktoggle_offset.Parent('root_ctrl_offset')
+        #Add ik fk toggle attribute
+        self.iktoggle.Attribute().addAttr("IK_FK_Toggle", k = True, min = 0, max = 1)
+        #Add pole vector constraint
+        self.ikpole.PoleVectorConstraint(self.ikhandle)
+        #Connections
+        self.iktoggle_reverse = shadingNode('reverse', au = True, n = self.name + "_ikfk_switch")
+
+        self.iktoggle.IK_FK_Toggle.connect((ls(sj + "_parentConstraint1")).(ls(sj + "_ikW0")), f = True)
+        self.iktoggle.IK_FK_Toggle.connect((ls(mj + "_parentConstraint1")).(ls(mj + "_ikW0")), f = True)
+        self.iktoggle.IK_FK_Toggle.connect((ls(ee + "_parentConstraint1")).(ls(ee + "_ikW0")), f = True)
+        self.iktoggle.IK_FK_Toggle.connect(self.iktoggle_reverse.inputX, f = True)
+
+        self.iktoggle_reverse.outputX.connect((ls(sj + "_parentConstraint1")).(ls(sj + "_fkW1")), f = True)
+        self.iktoggle_reverse.outputX.connect((ls(mj + "_parentConstraint1")).(ls(mj + "_fkW1")), f = True)
+        self.iktoggle_reverse.outputX.connect((ls(ee + "_parentConstraint1")).(ls(ee + "_fkW1")), f = True)
+
+        self.iktoggle.IK_FK_Toggle.connect(self.ikpole_offset.visibility, f = True)
+        self.iktoggle.IK_FK_Toggle.connect(self.ctrl_offset.visibility, f = True)
+        self.iktoggle.IK_FK_Toggle.connect(self.ikpole_curve.visibility, f = True)
+        self.iktoggle.IK_FK_Toggle.connect(self.iktextshape.visibility, f = True)
+
+        self.iktoggle_reverse.outputX.connect(self.fktextshape.visibility, f = True)
+        self.iktoggle_reverse.outputX.connect((ls(sj + "_fk_ctrl_offset")).visibility, f = True)
 
 	def edit()
 		#Edit control
