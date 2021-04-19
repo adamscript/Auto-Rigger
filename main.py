@@ -1,4 +1,5 @@
 from pymel.core import *
+from pymel.core.nodetypes import *
 #from rig.py import *
 
 win = window(title="Awan's Auto Rigger")
@@ -168,9 +169,18 @@ class Rig:
 		self.locator.setScale([s, s, s])
 		if (self.parent != ""):
 			self.locator.setParent(self.parent + "_guide")
+
+			self.guide_curve = NurbsCurve(p = [xform(self.name + "_guide", q = True, t = True, ws = True), xform(self.parent + "_guide", q = True, t = True, ws = True)], d = 1, n = self.name + "_guide_connector")
+			cluster(self.name + "_guide_connector.cv[0]", n = self.name + "_guide_cluster")
+			cluster(self.name + "_guide_connector.cv[1]", n = self.name + "_guide_parent_cluster")
+			parent(self.name + "_guide_clusterHandle", self.name + "_guide")
+			parent(self.name + "_guide_parent_clusterHandle", self.parent + "_guide")
+			setAttr(self.name + "_guide_connector.overrideEnabled", 1)
+			setAttr(self.name + "_guide_connector.overrideDisplayType", 2)
+			setAttr(self.name + "_guide_clusterHandleShape.visibility", 0)
+			setAttr(self.name + "_guide_parent_clusterHandleShape.visibility", 0)
 		else:
 			self.locator.setParent("guides")
-		
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
