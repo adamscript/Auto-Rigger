@@ -138,6 +138,100 @@ def deleteRig(*args):
 	print("Rig Deleted!")
 
 def createRig(*args):
+	group(n = "rig")
+	parent('rig', w = True)
+
+	hips.createJoint(oj = False)
+	waist.createJoint()
+	chest.createJoint()
+	sternum.createJoint()
+	l_clavicle.createJoint()
+	r_clavicle.createJoint()
+
+	neck.createJoint()
+	head.createJoint()
+	jaw.createJoint()
+	chin.createJoint(oj = False)
+	l_eye.createJoint(oj = False)
+	r_eye.createJoint(oj = False)
+
+	l_shoulder.createJoint(ik = True)
+	l_elbow.createJoint(ik = True)
+	l_wrist.createJoint(oj = False, ik = True)
+	r_shoulder.createJoint(ik = True)
+	r_elbow.createJoint(ik = True)
+	r_wrist.createJoint(oj = False, ik = True)
+	
+	l_finger_thumb_metacarpal.createJoint()
+	l_finger_thumb_proximal.createJoint()
+	l_finger_thumb_distal.createJoint()
+	l_finger_thumb_tip.createJoint(oj = False)
+	r_finger_thumb_metacarpal.createJoint()
+	r_finger_thumb_proximal.createJoint()
+	r_finger_thumb_distal.createJoint()
+	r_finger_thumb_tip.createJoint(oj = False)
+	
+	l_finger_index_metacarpal.createJoint()
+	l_finger_index_proximal.createJoint()
+	l_finger_index_middle.createJoint()
+	l_finger_index_distal.createJoint()
+	l_finger_index_tip.createJoint(oj = False)
+	r_finger_index_metacarpal.createJoint()
+	r_finger_index_proximal.createJoint()
+	r_finger_index_middle.createJoint()
+	r_finger_index_distal.createJoint()
+	r_finger_index_tip.createJoint(oj = False)
+	
+	l_finger_middle_metacarpal.createJoint()
+	l_finger_middle_proximal.createJoint()
+	l_finger_middle_middle.createJoint()
+	l_finger_middle_distal.createJoint()
+	l_finger_middle_tip.createJoint(oj = False)
+	r_finger_middle_metacarpal.createJoint()
+	r_finger_middle_proximal.createJoint()
+	r_finger_middle_middle.createJoint()
+	r_finger_middle_distal.createJoint()
+	r_finger_middle_tip.createJoint(oj = False)
+	
+	l_finger_ring_metacarpal.createJoint()
+	l_finger_ring_proximal.createJoint()
+	l_finger_ring_middle.createJoint()
+	l_finger_ring_distal.createJoint()
+	l_finger_ring_tip.createJoint(oj = False)
+	r_finger_ring_metacarpal.createJoint()
+	r_finger_ring_proximal.createJoint()
+	r_finger_ring_middle.createJoint()
+	r_finger_ring_distal.createJoint()
+	r_finger_ring_tip.createJoint(oj = False)
+	
+	l_finger_pinky_metacarpal.createJoint()
+	l_finger_pinky_proximal.createJoint()
+	l_finger_pinky_middle.createJoint()
+	l_finger_pinky_distal.createJoint()
+	l_finger_pinky_tip.createJoint(oj = False)
+	r_finger_pinky_metacarpal.createJoint()
+	r_finger_pinky_proximal.createJoint()
+	r_finger_pinky_middle.createJoint()
+	r_finger_pinky_distal.createJoint()
+	r_finger_pinky_tip.createJoint(oj = False)
+
+	l_thigh.createJoint(ik = True)
+	l_knee.createJoint(ik = True)
+	l_ankle.createJoint(oj = False, ik = True)
+	l_foot_ball.createJoint(ik = True)
+	l_foot_toes.createJoint(oj = False, ik = True)
+	l_foot_heel.createJoint()
+	l_foot_inner.createJoint()
+	l_foot_outer.createJoint()
+	r_thigh.createJoint(ik = True)
+	r_knee.createJoint(ik = True)
+	r_ankle.createJoint(oj = False, ik = True)
+	r_foot_ball.createJoint(ik = True)
+	r_foot_toes.createJoint(oj = False, ik = True)
+	r_foot_heel.createJoint()
+	r_foot_inner.createJoint()
+	r_foot_outer.createJoint()
+
 	print("Rig Created!")
 
 #ADD COMMANDS TO BUTTONS WHEN PRESSED
@@ -173,6 +267,7 @@ class Rig:
 			self.guide_curve = NurbsCurve(p = [xform(self.name + "_guide", q = True, t = True, ws = True), xform(self.parent + "_guide", q = True, t = True, ws = True)], d = 1, n = self.name + "_guide_connector")
 			cluster(self.name + "_guide_connector.cv[0]", n = self.name + "_guide_cluster")
 			cluster(self.name + "_guide_connector.cv[1]", n = self.name + "_guide_parent_cluster")
+			parent(self.name + "_guide_connector", "guides")
 			parent(self.name + "_guide_clusterHandle", self.name + "_guide")
 			parent(self.name + "_guide_parent_clusterHandle", self.parent + "_guide")
 			setAttr(self.name + "_guide_connector.overrideEnabled", 1)
@@ -181,6 +276,42 @@ class Rig:
 			setAttr(self.name + "_guide_parent_clusterHandleShape.visibility", 0)
 		else:
 			self.locator.setParent("guides")
+
+	def createJoint(self, oj = True, ik = False, rev = False):
+		self.joint_pos = xform(ls(self.name + "_guide"), q = True, t = True, ws = True)
+		print(self.joint_pos)
+		self.joint = Joint(n = self.name, radius = 1, p = self.joint_pos)
+		if(self.parent != ""):
+			self.joint.setParent(self.parent)
+		else:
+			self.joint.setParent("rig")
+
+		'''if oj:
+			self.joint.orientJoint("yzx")
+			self.joint.secondaryAxisOrient("zup")
+		elif not oj:
+			self.joint.orientJoint("none")'''
+
+		if ik:
+			self.jointIK = joint(radius = 1, p = self.joint_pos, n = self.name + "_ik")
+			self.jointFK = joint(radius = 1, p = self.joint_pos, n = self.name + "_fk")
+
+			self.jointIK.ParentConstraint(self.name)
+			self.jointFK.ParentConstraint(self.name)
+
+			#self.jointIK.hide()
+			#self.jointFK.hide()
+			print("ik")
+		elif not ik:
+			pass
+
+		if rev:
+			#self.jointrev = joint(radius = 1, p = self.joint_pos, n = self.name + "_rev")
+
+			#self.jointrev.hide()
+			print("rev")
+		elif not rev:
+			pass
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
