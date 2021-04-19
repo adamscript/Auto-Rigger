@@ -1,8 +1,5 @@
 from pymel.core import *
-
-from scripts/guides import *
-from scripts/joints import *
-from scripts/controllers import *
+#from scripts/rig.py import *
 
 win = window(title="Awan's Auto Rigger")
 layout = columnLayout()
@@ -22,18 +19,42 @@ deleterig_btn = button(l = "Delete Rig", w = 200, p = layout)
 separator()
 autorig_btn = button(l = "Awto Rig!", w = 200, h = 150, p = layout)
 
+def createGuides(*args):
+    print("Guides Created!")
+
+def mirrorGuides(*args):
+    print("Guides Mirrored!")
+
+def deleteGuides(*args):
+    print("Guides Deleted!")
+
+def displayAxes(*args):
+    print("Axes Displayed!")
+
+def resetPose(*args):
+    print("Pose Resetted!")
+
+def humaniseRig(*args):
+    print("Rig Humanised!")
+
+def deleteRig(*args):
+    print("Rig Deleted!")
+
+def createRig(*args):
+    print("Rig Created!")
+
 #ADD COMMANDS TO BUTTONS WHEN PRESSED
 guides_btn.setCommand(createGuides)
 mirrorguides_btn.setCommand(mirrorGuides)
-deleterig_btn.setCommand(deleteGuides)
+deleteguides_btn.setCommand(deleteGuides)
 displayaxes_btn.setCommand(displayAxes)
 resetpose_btn.setCommand(resetPose)
 humaniserig_btn.setCommand(humaniseRig)
 deleterig_btn.setCommand(deleteRig)
 autorig_btn.setCommand(createRig)
 
-win.show();
-
+win.show()
 
 #MAKE IK, HUMANISE, AND SKIN WEIGHT A CHECKBOX OPTION
+#ADD MIRROR CONTROLS
 #CREATE RIG UI
