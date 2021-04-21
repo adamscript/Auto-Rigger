@@ -126,7 +126,16 @@ def deleteGuides(*args):
 	print("Guides Deleted!")
 
 def displayAxes(*args):
-	print("Axes Displayed!")
+	selectedJoints = cmds.ls(type = 'joint', sl = True)
+
+	if not selectedJoints:
+		allJoints = cmds.ls(type = 'joint')
+		cmds.toggle(allJoints, la = True)
+	else:
+		print(selectedJoints)
+
+		cmds.toggle(selectedJoints, la = True)
+		print("Axes Displayed!")
 
 def resetPose(*args):
 	print("Pose Resetted!")
@@ -135,13 +144,17 @@ def humaniseRig(*args):
 	print("Rig Humanised!")
 
 def deleteRig(*args):
+	allRig = ls("rig")
+	delete(allRig)
+	mel.eval('MLdeleteUnused;')
+
 	print("Rig Deleted!")
 
 def createRig(*args):
 	group(n = "rig")
 	parent('rig', w = True)
 
-	hips.createJoint(oj = False)
+	hips.createJoint()
 	waist.createJoint()
 	chest.createJoint()
 	sternum.createJoint()
@@ -151,86 +164,178 @@ def createRig(*args):
 	neck.createJoint()
 	head.createJoint()
 	jaw.createJoint()
-	chin.createJoint(oj = False)
-	l_eye.createJoint(oj = False)
-	r_eye.createJoint(oj = False)
+	chin.createJoint()
+	l_eye.createJoint()
+	r_eye.createJoint()
 
 	l_shoulder.createJoint(ik = True)
 	l_elbow.createJoint(ik = True)
-	l_wrist.createJoint(oj = False, ik = True)
+	l_wrist.createJoint(ik = True)
 	r_shoulder.createJoint(ik = True)
 	r_elbow.createJoint(ik = True)
-	r_wrist.createJoint(oj = False, ik = True)
+	r_wrist.createJoint(ik = True)
 	
 	l_finger_thumb_metacarpal.createJoint()
 	l_finger_thumb_proximal.createJoint()
 	l_finger_thumb_distal.createJoint()
-	l_finger_thumb_tip.createJoint(oj = False)
+	l_finger_thumb_tip.createJoint()
 	r_finger_thumb_metacarpal.createJoint()
 	r_finger_thumb_proximal.createJoint()
 	r_finger_thumb_distal.createJoint()
-	r_finger_thumb_tip.createJoint(oj = False)
+	r_finger_thumb_tip.createJoint()
 	
 	l_finger_index_metacarpal.createJoint()
 	l_finger_index_proximal.createJoint()
 	l_finger_index_middle.createJoint()
 	l_finger_index_distal.createJoint()
-	l_finger_index_tip.createJoint(oj = False)
+	l_finger_index_tip.createJoint()
 	r_finger_index_metacarpal.createJoint()
 	r_finger_index_proximal.createJoint()
 	r_finger_index_middle.createJoint()
 	r_finger_index_distal.createJoint()
-	r_finger_index_tip.createJoint(oj = False)
+	r_finger_index_tip.createJoint()
 	
 	l_finger_middle_metacarpal.createJoint()
 	l_finger_middle_proximal.createJoint()
 	l_finger_middle_middle.createJoint()
 	l_finger_middle_distal.createJoint()
-	l_finger_middle_tip.createJoint(oj = False)
+	l_finger_middle_tip.createJoint()
 	r_finger_middle_metacarpal.createJoint()
 	r_finger_middle_proximal.createJoint()
 	r_finger_middle_middle.createJoint()
 	r_finger_middle_distal.createJoint()
-	r_finger_middle_tip.createJoint(oj = False)
+	r_finger_middle_tip.createJoint()
 	
 	l_finger_ring_metacarpal.createJoint()
 	l_finger_ring_proximal.createJoint()
 	l_finger_ring_middle.createJoint()
 	l_finger_ring_distal.createJoint()
-	l_finger_ring_tip.createJoint(oj = False)
+	l_finger_ring_tip.createJoint()
 	r_finger_ring_metacarpal.createJoint()
 	r_finger_ring_proximal.createJoint()
 	r_finger_ring_middle.createJoint()
 	r_finger_ring_distal.createJoint()
-	r_finger_ring_tip.createJoint(oj = False)
+	r_finger_ring_tip.createJoint()
 	
 	l_finger_pinky_metacarpal.createJoint()
 	l_finger_pinky_proximal.createJoint()
 	l_finger_pinky_middle.createJoint()
 	l_finger_pinky_distal.createJoint()
-	l_finger_pinky_tip.createJoint(oj = False)
+	l_finger_pinky_tip.createJoint()
 	r_finger_pinky_metacarpal.createJoint()
 	r_finger_pinky_proximal.createJoint()
 	r_finger_pinky_middle.createJoint()
 	r_finger_pinky_distal.createJoint()
-	r_finger_pinky_tip.createJoint(oj = False)
+	r_finger_pinky_tip.createJoint()
 
 	l_thigh.createJoint(ik = True)
 	l_knee.createJoint(ik = True)
-	l_ankle.createJoint(oj = False, ik = True)
-	l_foot_ball.createJoint(ik = True)
-	l_foot_toes.createJoint(oj = False, ik = True)
-	l_foot_heel.createJoint()
+	l_ankle.createJoint(ik = True, rev = True)
+	l_foot_ball.createJoint(ik = True, rev = True)
+	l_foot_toes.createJoint(ik = True, rev = True)
+	l_foot_heel.createJoint(rev = True)
 	l_foot_inner.createJoint()
 	l_foot_outer.createJoint()
 	r_thigh.createJoint(ik = True)
 	r_knee.createJoint(ik = True)
-	r_ankle.createJoint(oj = False, ik = True)
-	r_foot_ball.createJoint(ik = True)
-	r_foot_toes.createJoint(oj = False, ik = True)
-	r_foot_heel.createJoint()
+	r_ankle.createJoint(ik = True, rev = True)
+	r_foot_ball.createJoint(ik = True, rev = True)
+	r_foot_toes.createJoint(ik = True, rev = True)
+	r_foot_heel.createJoint(rev = True)
 	r_foot_inner.createJoint()
 	r_foot_outer.createJoint()
+
+	#Orient Joint
+	hips.orientJoint()
+	waist.orientJoint()
+	chest.orientJoint()
+	sternum.orientJoint()
+	l_clavicle.orientJoint()
+	r_clavicle.orientJoint()
+
+	neck.orientJoint()
+	head.orientJoint()
+	jaw.orientJoint()
+	chin.orientJoint(oj = False)
+	l_eye.orientJoint(oj = False)
+	r_eye.orientJoint(oj = False)
+
+	l_shoulder.orientJoint(ik = True)
+	l_elbow.orientJoint(ik = True)
+	l_wrist.orientJoint(oj = False, ik = True)
+	r_shoulder.orientJoint(ik = True)
+	r_elbow.orientJoint(ik = True)
+	r_wrist.orientJoint(oj = False, ik = True)
+	
+	l_finger_thumb_metacarpal.orientJoint()
+	l_finger_thumb_proximal.orientJoint()
+	l_finger_thumb_distal.orientJoint()
+	l_finger_thumb_tip.orientJoint(oj = False)
+	r_finger_thumb_metacarpal.orientJoint()
+	r_finger_thumb_proximal.orientJoint()
+	r_finger_thumb_distal.orientJoint()
+	r_finger_thumb_tip.orientJoint(oj = False)
+	
+	l_finger_index_metacarpal.orientJoint()
+	l_finger_index_proximal.orientJoint()
+	l_finger_index_middle.orientJoint()
+	l_finger_index_distal.orientJoint()
+	l_finger_index_tip.orientJoint(oj = False)
+	r_finger_index_metacarpal.orientJoint()
+	r_finger_index_proximal.orientJoint()
+	r_finger_index_middle.orientJoint()
+	r_finger_index_distal.orientJoint()
+	r_finger_index_tip.orientJoint(oj = False)
+	
+	l_finger_middle_metacarpal.orientJoint()
+	l_finger_middle_proximal.orientJoint()
+	l_finger_middle_middle.orientJoint()
+	l_finger_middle_distal.orientJoint()
+	l_finger_middle_tip.orientJoint(oj = False)
+	r_finger_middle_metacarpal.orientJoint()
+	r_finger_middle_proximal.orientJoint()
+	r_finger_middle_middle.orientJoint()
+	r_finger_middle_distal.orientJoint()
+	r_finger_middle_tip.orientJoint(oj = False)
+	
+	l_finger_ring_metacarpal.orientJoint()
+	l_finger_ring_proximal.orientJoint()
+	l_finger_ring_middle.orientJoint()
+	l_finger_ring_distal.orientJoint()
+	l_finger_ring_tip.orientJoint(oj = False)
+	r_finger_ring_metacarpal.orientJoint()
+	r_finger_ring_proximal.orientJoint()
+	r_finger_ring_middle.orientJoint()
+	r_finger_ring_distal.orientJoint()
+	r_finger_ring_tip.orientJoint(oj = False)
+	
+	l_finger_pinky_metacarpal.orientJoint()
+	l_finger_pinky_proximal.orientJoint()
+	l_finger_pinky_middle.orientJoint()
+	l_finger_pinky_distal.orientJoint()
+	l_finger_pinky_tip.orientJoint(oj = False)
+	r_finger_pinky_metacarpal.orientJoint()
+	r_finger_pinky_proximal.orientJoint()
+	r_finger_pinky_middle.orientJoint()
+	r_finger_pinky_distal.orientJoint()
+	r_finger_pinky_tip.orientJoint(oj = False)
+
+	l_thigh.orientJoint(ik = True)
+	l_knee.orientJoint(ik = True)
+	l_ankle.orientJoint(oj = False, ik = True)
+	l_foot_ball.orientJoint()
+	l_foot_toes.orientJoint(oj = False)
+	#l_foot_heel.orientJoint()
+	#l_foot_inner.orientJoint()
+	#l_foot_outer.orientJoint()
+	r_thigh.orientJoint(ik = True)
+	r_knee.orientJoint(ik = True)
+	r_ankle.orientJoint(oj = False, ik = True)
+	r_foot_ball.orientJoint()
+	r_foot_toes.orientJoint(oj = False)
+	#r_foot_heel.orientJoint()
+	#r_foot_inner.orientJoint()
+	#r_foot_outer.orientJoint()
 
 	print("Rig Created!")
 
@@ -247,8 +352,6 @@ autorig_btn.setCommand(createRig)
 win.show()
 
 # RIG #
-
-#GUIDES#
 
 class Rig:
 
@@ -277,41 +380,70 @@ class Rig:
 		else:
 			self.locator.setParent("guides")
 
-	def createJoint(self, oj = True, ik = False, rev = False):
+	def createJoint(self, ik = False, rev = False):
 		self.joint_pos = xform(ls(self.name + "_guide"), q = True, t = True, ws = True)
-		print(self.joint_pos)
+		#print(self.joint_pos)
 		self.joint = Joint(n = self.name, radius = 1, p = self.joint_pos)
+		#print(objectType(self.joint))
 		if(self.parent != ""):
 			self.joint.setParent(self.parent)
 		else:
 			self.joint.setParent("rig")
 
-		'''if oj:
-			self.joint.orientJoint("yzx")
-			self.joint.secondaryAxisOrient("zup")
-		elif not oj:
-			self.joint.orientJoint("none")'''
-
 		if ik:
-			self.jointIK = joint(radius = 1, p = self.joint_pos, n = self.name + "_ik")
-			self.jointFK = joint(radius = 1, p = self.joint_pos, n = self.name + "_fk")
-
-			self.jointIK.ParentConstraint(self.name)
-			self.jointFK.ParentConstraint(self.name)
+			self.jointIK = Joint(n = self.name + "_ik", radius = 1, p = self.joint_pos)
+			self.jointFK = Joint(n = self.name + "_fk", radius = 1, p = self.joint_pos)
+			if(self.parent == "l_clavicle" or self.parent == "r_clavicle" or self.parent == "hips"):
+				self.jointIK.setParent(self.parent)
+				self.jointFK.setParent(self.parent)
+			else:
+				self.jointIK.setParent(self.parent + "_ik")
+				self.jointFK.setParent(self.parent + "_fk")
 
 			#self.jointIK.hide()
 			#self.jointFK.hide()
-			print("ik")
+			#print("ik")
 		elif not ik:
 			pass
 
 		if rev:
-			#self.jointrev = joint(radius = 1, p = self.joint_pos, n = self.name + "_rev")
+			self.jointrev = joint(radius = 1, p = self.joint_pos, n = self.name + "_rev")
 
 			#self.jointrev.hide()
 			print("rev")
 		elif not rev:
 			pass
+
+		return self
+
+	
+	def orientJoint(self, oj = True, ik = False):
+		if oj:
+			self.joint.orientJoint('yzx', sao = 'zup')
+			print(self.name + " oj")
+			if ik:
+				self.jointIK.orientJoint('yzx', sao = 'zup')
+				self.jointFK.orientJoint('yzx', sao = 'zup')
+
+				parentConstraint(self.jointIK, self.joint)
+				parentConstraint(self.jointFK, self.joint)
+
+				print(self.name + " ik")
+			elif not ik:
+				pass
+		elif not oj:
+			self.joint.orientJoint('none')
+			print(self.name + " not oj")
+			if ik:
+				self.jointIK.orientJoint('none')
+				self.jointFK.orientJoint('none')
+
+				parentConstraint(self.jointIK, self.joint)
+				parentConstraint(self.jointFK, self.joint)
+
+				print(self.name + " ik")
+			elif not ik:
+				pass
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
