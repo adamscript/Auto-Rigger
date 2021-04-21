@@ -154,6 +154,8 @@ def createRig(*args):
 	group(n = "rig")
 	parent('rig', w = True)
 
+	# JOINTS #
+
 	hips.createJoint()
 	waist.createJoint()
 	chest.createJoint()
@@ -337,6 +339,29 @@ def createRig(*args):
 	#r_foot_inner.orientJoint()
 	#r_foot_outer.orientJoint()
 
+	# CONTROLLERS #
+
+	hips.createControl()
+	waist.createControl()
+	chest.createControl()
+	sternum.createControl()
+	l_clavicle.createControl()
+	r_clavicle.createControl()
+
+	neck.createControl()
+	head.createControl()
+	jaw.createControl()
+	chin.createControl()
+	l_eye.createControl()
+	r_eye.createControl()
+
+	l_shoulder.createControl()
+	l_elbow.createControl()
+	l_wrist.createControl()
+	r_shoulder.createControl()
+	r_elbow.createControl()
+	r_wrist.createControl()
+
 	print("Rig Created!")
 
 #ADD COMMANDS TO BUTTONS WHEN PRESSED
@@ -415,7 +440,6 @@ class Rig:
 			pass
 
 		return self
-
 	
 	def orientJoint(self, oj = True, ik = False):
 		if oj:
@@ -444,6 +468,43 @@ class Rig:
 				print(self.name + " ik")
 			elif not ik:
 				pass
+		
+		print(self.name + ("_ctrl"))
+
+	def createControl(self, r = 10, nr = "Y", fk = False):
+		#Create circle
+		self.guide = ls(self.name + "_guide")
+
+		if fk:
+			self.ctrl = MakeNurbCircle(r = r, n = self.name + "_fk_ctrl")
+		elif not fk:
+			self.ctrl = MakeNurbCircle(r = r, n = self.name + "_ctrl")
+
+		#Set the circle plane normal
+		if(nr == "X" or nr == "x"):
+			self.ctrl.setNormalX(1)
+			self.ctrl.setNormalZ(0)
+		elif(nr == "Y" or nr == "y"):
+			self.ctrl.setNormalY(1)
+			self.ctrl.setNormalZ(0)
+		elif(nr == "Z" or nr == "z"):
+			self.ctrl.setNormalZ(1)
+
+		#Create control offset for each control
+		if fk:
+			self.ctrl_offset = group(em = True, n = self.name + "_fk_ctrl_offset")
+			parent(self.name + "_fk_ctrl", self.name + "_fk_ctrl_offset")
+		elif not fk:
+			self.ctrl_offset = group(em = True, n = self.name + "_ctrl_offset")
+			parent(self.name + "_ctrl", self.name + "_ctrl_offset")
+		
+		xform(self.ctrl_offset, t = xform(self.name + "_guide", q = True, t = True, ws = True), ro = xform(self.name, q = True, ro = True, ws = True))
+		#xform()
+
+		parent(self.name + "_ctrl_offset", "rig")
+
+		#Parent Constraint
+		#self.ctrl.ParentConstraint(pc)
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
