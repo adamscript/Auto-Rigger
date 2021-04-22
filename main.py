@@ -537,6 +537,33 @@ class Rig:
 		#Create IK Handle
 		self.ikhandle = ikHandle(n = self.name + "_ikHandle", sj = sj + "_ik", ee = ee + "_ik")
 		parent(self.name + "_ikHandle", self.name + "_ik_ctrl")
+		#Create IK Pole
+		self.ikpole = MakeNurbSphere(r = 3, n = self.name + "_ikpole_ctrl")
+		rename('makeNurbSphere1', self.name + "_ikpole_ctrlInput")
+		setAttr(self.name + '_ikpole_ctrlInput.sections', 4)
+		setAttr(self.name + '_ikpole_ctrlInput.spans', 2)
+		setAttr(self.name + '_ikpole_ctrl.overrideEnabled', 1)
+		setAttr(self.name + '_ikpole_ctrl.overrideShading', 0)
+		setAttr(self.name + '_ikpole_ctrl.overrideTexturing', 0)
+		setAttr(self.name + '_ikpole_ctrl.overridePlayback', 0)
+
+		self.ikpole_offset = group(n = self.name + "_ikpole_ctrl_offset", em = True)
+		parent(self.name + "_ikpole_ctrl", self.name + "_ikpole_ctrl_offset")
+		xform(self.name + "_ikpole_ctrl_offset", t = xform(mj, q = True, t = True, ws = True), ws = True)
+		move(0, 0, -30, self.name + "_ikpole_ctrl_offset", ls = True, r = True)
+		makeIdentity(self.name + "_ikpole_ctrl", a = True, t = True)
+		parent(self.name + "_ikpole_ctrl_offset", 'rig')
+
+		poleVectorConstraint(self.name + "_ikpole_ctrl", self.name + "_ikHandle")
+
+		curve(p = [xform(mj, q = True, t = True, ws = True), xform(self.name + "_ikpole_ctrl", q = True, t = True, ws = True)], d = 1, ws = True, n = self.name + "_ikpole_ctrl_connector")
+		cluster(self.name + '_ikpole_ctrl_connector.cv[0]', n = self.name + "_ikpole_cluster")
+		cluster(self.name + '_ikpole_ctrl_connector.cv[1]', n = self.name + "_ikpole_ctrl_cluster")
+		parent(self.name + "_ikpole_clusterHandle", mj)
+		parent(self.name + "_ikpole_ctrl_clusterHandle", self.name + "_ikpole_ctrl")
+		setAttr(self.name + "_ikpole_ctrl_connector.overrideEnabled", 1)
+		setAttr(self.name + "_ikpole_ctrl_connector.overrideDisplayType", 2)
+		parent(self.name + "_ikpole_ctrl_connector", 'rig')
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
