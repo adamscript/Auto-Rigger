@@ -1,5 +1,6 @@
 from pymel.core import *
 from pymel.core.nodetypes import *
+import pymel.core as pm
 #from rig.py import *
 
 win = window(title="Awan's Auto Rigger")
@@ -578,8 +579,59 @@ class Rig:
 		parent(self.name + "_ikpole_ctrl_connector", 'rig')
 
 		#IK FK Toggle
-
+		#Create IK FK Toggle
+		self.iktoggle = MakeNurbPlane(w = 10, d = 1, ax = (0, 0, 1), n = self.name + "_ikfk_toggle_ctrl")
+		rename('makeNurbPlane1', self.name + "_ikfk_toggle_ctrlInput")
+		setAttr (self.name + "_ikfk_toggle_ctrlInput.width", 10)
+		setAttr (self.name + "_ikfk_toggle_ctrl.overrideEnabled", 1)
+		setAttr(self.name + '_ikfk_toggle_ctrl.overrideShading', 0)
+		setAttr(self.name + '_ikfk_toggle_ctrl.overrideTexturing', 0)
+		setAttr(self.name + '_ikfk_toggle_ctrl.overridePlayback', 0)
+		#Create IK FK Toggle Text
+		self.iktext = textCurves(text = "IK", f = "Lucida Sans Unicode", n = self.name + "_IK_lttr")
+		self.fktext = textCurves(text = "FK", f = "Lucida Sans Unicode", n = self.name + "_FK_lttr")
+		xform(self.name + "_IK_lttrShape", t = (xform(self.name + "_ikfk_toggle_ctrl", q = True, t = True, ws = True)), ws = True, cp = True)
+		xform(self.name + "_FK_lttrShape", t = (xform(self.name + "_ikfk_toggle_ctrl", q = True, t = True, ws = True)), ws = True, cp = True)
+		xform(self.name + "_IK_lttrShape", s = (7, 7, 7))
+		xform(self.name + "_FK_lttrShape", s = (7, 7, 7))
+		setAttr(self.name + "_IK_lttrShape.overrideEnabled", 1)
+		setAttr(self.name + "_FK_lttrShape.overrideEnabled", 1)
+		setAttr(self.name + "_IK_lttrShape.overrideDisplayType", 2)
+		setAttr(self.name + "_FK_lttrShape.overrideDisplayType", 2)
+		
+		parent(self.name + "_IK_lttrShape", self.name + "_ikfk_toggle_ctrl")
+		parent(self.name + "_FK_lttrShape", self.name + "_ikfk_toggle_ctrl")
+		
+		#Create ikfk toggle offset
+		self.iktoggle_offset = group(n = self.name + "_ikfk_toggle_ctrl_offset")
+		parent(self.name + "_ikfk_toggle_ctrl_offset", w = True)
+		parent(self.name + "_ikfk_toggle_ctrl", self.name + "_ikfk_toggle_ctrl_offset")
+		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (xform(ee, q = True, t = True, ws = True)))
+		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (0, 10, -20), r = True)
+		#self.iktoggle_offset.Parent('root_ctrl_offset')
+		#Add ik fk toggle attribute
+		#self.iktoggle.Attribute().addAttr("IK_FK_Toggle", k = True, min = 0, max = 1)
+		'''
 		#Connections
+		self.iktoggle_reverse = shadingNode('reverse', au = True, n = self.name + "_ikfk_switch")
+
+		self.iktoggle.IK_FK_Toggle.connect((ls(sj + "_parentConstraint1")).(ls(sj + "_ikW0")), f = True)
+		self.iktoggle.IK_FK_Toggle.connect((ls(mj + "_parentConstraint1")).(ls(mj + "_ikW0")), f = True)
+		self.iktoggle.IK_FK_Toggle.connect((ls(ee + "_parentConstraint1")).(ls(ee + "_ikW0")), f = True)
+		self.iktoggle.IK_FK_Toggle.connect(self.iktoggle_reverse.inputX, f = True)
+
+		self.iktoggle_reverse.outputX.connect((ls(sj + "_parentConstraint1")).(ls(sj + "_fkW1")), f = True)
+		self.iktoggle_reverse.outputX.connect((ls(mj + "_parentConstraint1")).(ls(mj + "_fkW1")), f = True)
+		self.iktoggle_reverse.outputX.connect((ls(ee + "_parentConstraint1")).(ls(ee + "_fkW1")), f = True)
+
+		self.iktoggle.IK_FK_Toggle.connect(self.ikpole_offset.visibility, f = True)
+		self.iktoggle.IK_FK_Toggle.connect(self.ctrl_offset.visibility, f = True)
+		self.iktoggle.IK_FK_Toggle.connect(self.ikpole_curve.visibility, f = True)
+		self.iktoggle.IK_FK_Toggle.connect(self.iktextshape.visibility, f = True)
+
+		self.iktoggle_reverse.outputX.connect(self.fktextshape.visibility, f = True)
+		self.iktoggle_reverse.outputX.connect((ls(sj + "_fk_ctrl_offset")).visibility, f = True)
+		'''#Connections
 
 		#Lock and Hide Attributes
 
