@@ -498,13 +498,15 @@ class Rig:
 			self.ctrl_offset = group(em = True, n = self.name + "_ctrl_offset")
 			parent(self.name + "_ctrl", self.name + "_ctrl_offset")
 		
-		xform(self.ctrl_offset, t = xform(self.name + "_guide", q = True, t = True, ws = True), ro = xform(self.name, q = True, ro = True, ws = True))
-		#xform()
-
-		parent(self.name + "_ctrl_offset", "rig")
+		xform(self.ctrl_offset, t = xform(self.guide, q = True, t = True, ws = True), ro = xform(self.name, q = True, ro = True, ws = True))
+		
+		if self.parent is "":
+			parent(self.name + "_ctrl_offset", "rig")
+		elif self.parent is not "":
+			parent(self.name + "_ctrl_offset", self.parent + "_ctrl")
 
 		#Parent Constraint
-		#self.ctrl.ParentConstraint(pc)
+		parentConstraint(self.name + "_ctrl", self.name, mo = True)
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
