@@ -339,6 +339,17 @@ def createRig(*args):
 	#r_foot_inner.orientJoint()
 	#r_foot_outer.orientJoint()
 
+	#IK FK SYSTEMS
+        
+	cmds.group('l_thigh_ik', 'l_thigh_fk', n =  'l_leg_ik_fk')
+	cmds.group('l_shoulder_ik', 'l_shoulder_fk', n = 'l_arm_ik_fk')
+
+	cmds.group('r_thigh_ik', 'r_thigh_fk', n =  'r_leg_ik_fk')
+	cmds.group('r_shoulder_ik', 'r_shoulder_fk', n = 'r_arm_ik_fk')
+
+	cmds.group('l_leg_ik_fk', 'l_arm_ik_fk', 'r_leg_ik_fk', 'r_arm_ik_fk', n = 'ik_fk_joints')
+	cmds.parent('ik_fk_joints', 'rig')
+
 	# CONTROLLERS #
 	
 	hips.createControl()
@@ -441,7 +452,7 @@ class Rig:
 			print("rev")
 		elif not rev:
 			pass
-
+		
 		return self
 	
 	def orientJoint(self, oj = True, ik = False):
@@ -517,9 +528,9 @@ class Rig:
 
 		#Parent Constraint
 		if fk:
-			parentConstraint(self.name + "_fk_ctrl_offset", self.name, mo = True)
+			parentConstraint(self.name + "_fk_ctrl", self.name, mo = True)
 		elif not fk:
-			parentConstraint(self.name + "_ctrl_offset", self.name, mo = True)
+			parentConstraint(self.name + "_ctrl", self.name, mo = True)
 
 	def createIKControl(self, type, base, sj, ee, mj, rev = False):
 		#Get start joint and end effector position and rotation
@@ -534,6 +545,7 @@ class Rig:
 		parent(self.name + "_ik_ctrl", self.name + "_ik_ctrl_offset")
 		xform(self.name + "_ik_ctrl_offset", t = self.ee_pos, ro = self.ee_rot, ws = True)
 		parent(self.name + "_ik_ctrl_offset", "rig")
+		orientConstraint(self.name + "_ik_ctrl", ee + "_ik")
 		#Create IK Handle
 		self.ikhandle = ikHandle(n = self.name + "_ikHandle", sj = sj + "_ik", ee = ee + "_ik")
 		parent(self.name + "_ikHandle", self.name + "_ik_ctrl")
@@ -564,6 +576,18 @@ class Rig:
 		setAttr(self.name + "_ikpole_ctrl_connector.overrideEnabled", 1)
 		setAttr(self.name + "_ikpole_ctrl_connector.overrideDisplayType", 2)
 		parent(self.name + "_ikpole_ctrl_connector", 'rig')
+
+		#IK FK Toggle
+
+		#Connections
+
+		#Lock and Hide Attributes
+
+		#Colour Override
+
+		#Reverse Foot
+
+		#IK FK System
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
