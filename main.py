@@ -533,6 +533,10 @@ class Rig:
 		self.IKctrl.setNormalZ(0)
 		parent(self.name + "_ik_ctrl", self.name + "_ik_ctrl_offset")
 		xform(self.name + "_ik_ctrl_offset", t = self.ee_pos, ro = self.ee_rot, ws = True)
+		parent(self.name + "_ik_ctrl_offset", "rig")
+		#Create IK Handle
+		self.ikhandle = ikHandle(n = self.name + "_ikHandle", sj = sj + "_ik", ee = ee + "_ik")
+		parent(self.name + "_ikHandle", self.name + "_ik_ctrl")
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
@@ -558,8 +562,8 @@ r_shoulder = Rig("r_shoulder", t = (-19, 150.912, 0), p = "r_clavicle")
 r_elbow = Rig("r_elbow", t = (-31, 125, 0), p = "r_shoulder")
 r_wrist = Rig("r_wrist", t = (-45, 103, 6), p = "r_elbow")
 
-l_arm = Rig("l_arm")
-r_arm = Rig("r_arm")
+l_arm = Rig("l_arm", p = "l_wrist")
+r_arm = Rig("r_arm", p = "r_wrist")
 
 # FINGERS #
 #THUMB#
