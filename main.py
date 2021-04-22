@@ -376,6 +376,79 @@ def createRig(*args):
 
 	l_arm.createIKControl('arm', 'collarbone', sj = 'l_shoulder', ee = 'l_wrist', mj = 'l_elbow')
 	r_arm.createIKControl('arm', 'collarbone', sj = 'r_shoulder', ee = 'r_wrist', mj = 'r_elbow')
+
+	l_finger_thumb_metacarpal.createControl(r = 1)
+	l_finger_thumb_proximal.createControl(r = 1)
+	l_finger_thumb_distal.createControl(r = 1)
+	l_finger_thumb_tip.createControl(r = 1)
+	r_finger_thumb_metacarpal.createControl(r = 1)
+	r_finger_thumb_proximal.createControl(r = 1)
+	r_finger_thumb_distal.createControl(r = 1)
+	r_finger_thumb_tip.createControl(r = 1)
+	
+	l_finger_index_metacarpal.createControl(r = 1)
+	l_finger_index_proximal.createControl(r = 1)
+	l_finger_index_middle.createControl(r = 1)
+	l_finger_index_distal.createControl(r = 1)
+	l_finger_index_tip.createControl(r = 1)
+	r_finger_index_metacarpal.createControl(r = 1)
+	r_finger_index_proximal.createControl(r = 1)
+	r_finger_index_middle.createControl(r = 1)
+	r_finger_index_distal.createControl(r = 1)
+	r_finger_index_tip.createControl(r = 1)
+	
+	l_finger_middle_metacarpal.createControl(r = 1)
+	l_finger_middle_proximal.createControl(r = 1)
+	l_finger_middle_middle.createControl(r = 1)
+	l_finger_middle_distal.createControl(r = 1)
+	l_finger_middle_tip.createControl(r = 1)
+	r_finger_middle_metacarpal.createControl(r = 1)
+	r_finger_middle_proximal.createControl(r = 1)
+	r_finger_middle_middle.createControl(r = 1)
+	r_finger_middle_distal.createControl(r = 1)
+	r_finger_middle_tip.createControl(r = 1)
+	
+	l_finger_ring_metacarpal.createControl(r = 1)
+	l_finger_ring_proximal.createControl(r = 1)
+	l_finger_ring_middle.createControl(r = 1)
+	l_finger_ring_distal.createControl(r = 1)
+	l_finger_ring_tip.createControl(r = 1)
+	r_finger_ring_metacarpal.createControl(r = 1)
+	r_finger_ring_proximal.createControl(r = 1)
+	r_finger_ring_middle.createControl(r = 1)
+	r_finger_ring_distal.createControl(r = 1)
+	r_finger_ring_tip.createControl(r = 1)
+	
+	l_finger_pinky_metacarpal.createControl(r = 1)
+	l_finger_pinky_proximal.createControl(r = 1)
+	l_finger_pinky_middle.createControl(r = 1)
+	l_finger_pinky_distal.createControl(r = 1)
+	l_finger_pinky_tip.createControl(r = 1)
+	r_finger_pinky_metacarpal.createControl(r = 1)
+	r_finger_pinky_proximal.createControl(r = 1)
+	r_finger_pinky_middle.createControl(r = 1)
+	r_finger_pinky_distal.createControl(r = 1)
+	r_finger_pinky_tip.createControl(r = 1)
+
+	l_thigh.createControl(fk = True)
+	l_knee.createControl(fk = True)
+	l_ankle.createControl(fk = True, rev = True)
+	l_foot_ball.createControl(rev = True)
+	l_foot_toes.createControl(rev = True)
+	#l_foot_heel.createControl(rev = True)
+	#l_foot_inner.createControl()
+	#l_foot_outer.createControl()
+	r_thigh.createControl(fk = True)
+	r_knee.createControl(fk = True)
+	r_ankle.createControl(fk = True, rev = True)
+	r_foot_ball.createControl(rev = True)
+	r_foot_toes.createControl(rev = True)
+	#r_foot_heel.createControl(rev = True)
+	#r_foot_inner.createControl()
+	#r_foot_outer.createControl()
+
+	l_leg.createIKControl('leg', 'hip', sj = 'l_thigh', ee = 'l_ankle', mj = 'l_knee')
+	r_leg.createIKControl('leg', 'hip', sj = 'r_thigh', ee = 'r_ankle', mj = 'r_knee')
 	
 	print("Rig Created!")
 
@@ -421,7 +494,7 @@ class Rig:
 			self.locator.setParent("guides")
 
 	def createJoint(self, ik = False, rev = False):
-		self.joint_pos = xform(ls(self.name + "_guide"), q = True, t = True, ws = True)
+		self.joint_pos = xform(self.name + "_guide", q = True, t = True, ws = True)
 		#print(self.joint_pos)
 		self.joint = Joint(n = self.name, radius = 1, p = self.joint_pos)
 		#print(objectType(self.joint))
@@ -454,6 +527,9 @@ class Rig:
 		elif not rev:
 			pass
 		
+		hide (ls ('*_ik', type = 'joint'))
+		hide (ls ('*_fk', type = 'joint'))
+		hide (ls ('*_rev', type = 'joint'))
 		return self
 	
 	def orientJoint(self, oj = True, ik = False):
@@ -464,8 +540,8 @@ class Rig:
 				self.jointIK.orientJoint('yzx', sao = 'zup')
 				self.jointFK.orientJoint('yzx', sao = 'zup')
 
-				parentConstraint(self.jointIK, self.joint)
-				parentConstraint(self.jointFK, self.joint)
+				parentConstraint(self.jointIK, self.joint, mo = False)
+				parentConstraint(self.jointFK, self.joint, mo = False)
 
 				print(self.name + " ik")
 			elif not ik:
@@ -477,14 +553,14 @@ class Rig:
 				self.jointIK.orientJoint('none')
 				self.jointFK.orientJoint('none')
 
-				parentConstraint(self.jointIK, self.joint)
-				parentConstraint(self.jointFK, self.joint)
+				parentConstraint(self.jointIK, self.joint, mo = False)
+				parentConstraint(self.jointFK, self.joint, mo = False)
 
 				print(self.name + " ik")
 			elif not ik:
 				pass
 
-	def createControl(self, r = 10, nr = "Y", fk = False):
+	def createControl(self, r = 10, nr = "Y", fk = False, rev = False):
 		#Create circle
 		self.guide = ls(self.name + "_guide")
 
@@ -511,7 +587,7 @@ class Rig:
 			self.ctrl_offset = group(em = True, n = self.name + "_ctrl_offset")
 			parent(self.name + "_ctrl", self.name + "_ctrl_offset")
 		
-		xform(self.ctrl_offset, t = xform(self.guide, q = True, t = True, ws = True), ro = xform(self.name, q = True, ro = True, ws = True))
+		xform(self.ctrl_offset, t = xform(self.name + "_guide", q = True, t = True, ws = True), ro = xform(self.name, q = True, ro = True, ws = True))
 		
 		if fk:
 			if (self.parent == "l_clavicle") or (self.parent == "r_clavicle") or (self.parent == "hips"):
@@ -521,7 +597,10 @@ class Rig:
 				parent(self.name + "_fk_ctrl_offset", self.parent + "_fk_ctrl")
 				print("parent clavicle or hips fk ctrl")
 		elif not fk:
-			if (self.parent != ""):
+			if (self.parent == "l_wrist" or self.parent == "r_wrist" or self.parent == "l_ankle" or  self.parent == "r_ankle"):
+				parent(self.name + "_ctrl_offset", "rig")
+				parentConstraint(self.parent, self.name + "_ctrl_offset", mo = True)
+			elif (self.parent != ""):
 				parent(self.name + "_ctrl_offset", self.parent + "_ctrl")
 			else:
 				parent(self.name + "_ctrl_offset", "rig")
@@ -529,7 +608,7 @@ class Rig:
 
 		#Parent Constraint
 		if fk:
-			parentConstraint(self.name + "_fk_ctrl", self.name, mo = True)
+			parentConstraint(self.name + "_fk_ctrl", self.name + "_fk", mo = True)
 		elif not fk:
 			parentConstraint(self.name + "_ctrl", self.name, mo = True)
 
@@ -608,30 +687,26 @@ class Rig:
 		parent(self.name + "_ikfk_toggle_ctrl", self.name + "_ikfk_toggle_ctrl_offset")
 		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (xform(ee, q = True, t = True, ws = True)))
 		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (0, 10, -20), r = True)
-		#self.iktoggle_offset.Parent('root_ctrl_offset')
+		parent(self.name + "_ikfk_toggle_ctrl_offset", 'rig')
+		pointConstraint(self.parent, self.name + "_ikfk_toggle_ctrl_offset", mo = True)
 		#Add ik fk toggle attribute
-		#self.iktoggle.Attribute().addAttr("IK_FK_Toggle", k = True, min = 0, max = 1)
-		'''
+		addAttr(self.name + "_ikfk_toggle_ctrl", ln = "IK_FK_Toggle", k = True, min = 0, max = 1)
+		
 		#Connections
-		self.iktoggle_reverse = shadingNode('reverse', au = True, n = self.name + "_ikfk_switch")
-
-		self.iktoggle.IK_FK_Toggle.connect((ls(sj + "_parentConstraint1")).(ls(sj + "_ikW0")), f = True)
-		self.iktoggle.IK_FK_Toggle.connect((ls(mj + "_parentConstraint1")).(ls(mj + "_ikW0")), f = True)
-		self.iktoggle.IK_FK_Toggle.connect((ls(ee + "_parentConstraint1")).(ls(ee + "_ikW0")), f = True)
-		self.iktoggle.IK_FK_Toggle.connect(self.iktoggle_reverse.inputX, f = True)
-
-		self.iktoggle_reverse.outputX.connect((ls(sj + "_parentConstraint1")).(ls(sj + "_fkW1")), f = True)
-		self.iktoggle_reverse.outputX.connect((ls(mj + "_parentConstraint1")).(ls(mj + "_fkW1")), f = True)
-		self.iktoggle_reverse.outputX.connect((ls(ee + "_parentConstraint1")).(ls(ee + "_fkW1")), f = True)
-
-		self.iktoggle.IK_FK_Toggle.connect(self.ikpole_offset.visibility, f = True)
-		self.iktoggle.IK_FK_Toggle.connect(self.ctrl_offset.visibility, f = True)
-		self.iktoggle.IK_FK_Toggle.connect(self.ikpole_curve.visibility, f = True)
-		self.iktoggle.IK_FK_Toggle.connect(self.iktextshape.visibility, f = True)
-
-		self.iktoggle_reverse.outputX.connect(self.fktextshape.visibility, f = True)
-		self.iktoggle_reverse.outputX.connect((ls(sj + "_fk_ctrl_offset")).visibility, f = True)
-		'''#Connections
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', sj + '_parentConstraint1.' + sj + '_ikW0', f = True)
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', mj + '_parentConstraint1.' + mj + '_ikW0', f = True)
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', ee + '_parentConstraint1.' + ee + '_ikW0', f = True)
+		shadingNode('reverse', n = self.name + '_ikfk_switch', au = True)
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ikfk_switch.inputX', f = True)
+		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_parentConstraint1.' + sj + '_fkW1', f = True)
+		connectAttr(self.name + '_ikfk_switch.outputX', mj + '_parentConstraint1.' + mj + '_fkW1', f = True)
+		connectAttr(self.name + '_ikfk_switch.outputX', ee + '_parentConstraint1.' + ee + '_fkW1', f = True)
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ikpole_ctrl_offset.visibility', f = True)
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ik_ctrl_offset.visibility', f = True)
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ikpole_ctrl_connector.visibility', f = True)
+		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_IK_lttrShape.visibility', f = True)
+		connectAttr(self.name + '_ikfk_switch.outputX', self.name + '_FK_lttrShape.visibility', f = True)
+		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
 
 		#Lock and Hide Attributes
 
@@ -740,6 +815,9 @@ r_foot_toes = Rig("r_foot_toes", t = (-22.253, 3.639, 21.534), p = "r_foot_ball"
 r_foot_heel = Rig("r_foot_heel", t = (-18.406, 3.639, -4.419), p = "r_foot_toes")
 r_foot_inner = Rig("r_foot_inner", t = (-15.229, 3.639, 7.702), p = "r_foot_heel")
 r_foot_outer = Rig("r_foot_outer", t = (-25.864, 3.639, 7.702), p = "r_foot_heel")
+
+l_leg = Rig("l_leg", p = "l_ankle")
+r_leg = Rig("r_leg", p = "r_ankle")
 
 #MAKE IK, HUMANISE, AND SKIN WEIGHT A CHECKBOX OPTION
 #ADD MIRROR CONTROLS
