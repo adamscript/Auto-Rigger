@@ -340,14 +340,14 @@ def createRig(*args):
 	#r_foot_outer.orientJoint()
 
 	# CONTROLLERS #
-
+	
 	hips.createControl()
 	waist.createControl()
 	chest.createControl()
 	sternum.createControl()
 	l_clavicle.createControl()
 	r_clavicle.createControl()
-
+	
 	neck.createControl()
 	head.createControl()
 	jaw.createControl()
@@ -355,13 +355,16 @@ def createRig(*args):
 	l_eye.createControl()
 	r_eye.createControl()
 
-	l_shoulder.createControl()
-	l_elbow.createControl()
-	l_wrist.createControl()
-	r_shoulder.createControl()
-	r_elbow.createControl()
-	r_wrist.createControl()
+	l_shoulder.createControl(fk = True)
+	l_elbow.createControl(fk = True)
+	l_wrist.createControl(fk = True)
+	r_shoulder.createControl(fk = True)
+	r_elbow.createControl(fk = True)
+	r_wrist.createControl(fk = True)
 
+	l_arm.createIKControl('arm', 'collarbone', sj = 'l_shoulder', ee = 'l_wrist', mj = 'l_elbow')
+	r_arm.createIKControl('arm', 'collarbone', sj = 'r_shoulder', ee = 'r_wrist', mj = 'r_elbow')
+	
 	print("Rig Created!")
 
 #ADD COMMANDS TO BUTTONS WHEN PRESSED
@@ -468,8 +471,6 @@ class Rig:
 				print(self.name + " ik")
 			elif not ik:
 				pass
-		
-		print(self.name + ("_ctrl"))
 
 	def createControl(self, r = 10, nr = "Y", fk = False):
 		#Create circle
@@ -500,13 +501,38 @@ class Rig:
 		
 		xform(self.ctrl_offset, t = xform(self.guide, q = True, t = True, ws = True), ro = xform(self.name, q = True, ro = True, ws = True))
 		
-		if self.parent is "":
-			parent(self.name + "_ctrl_offset", "rig")
-		elif self.parent is not "":
-			parent(self.name + "_ctrl_offset", self.parent + "_ctrl")
+		if fk:
+			if (self.parent == "l_clavicle") or (self.parent == "r_clavicle") or (self.parent == "hips"):
+				parent(self.name + "_fk_ctrl_offset", self.parent + "_ctrl")
+				print("parent clavicle or hips ctrl")
+			else:
+				parent(self.name + "_fk_ctrl_offset", self.parent + "_fk_ctrl")
+				print("parent clavicle or hips fk ctrl")
+		elif not fk:
+			if (self.parent != ""):
+				parent(self.name + "_ctrl_offset", self.parent + "_ctrl")
+			else:
+				parent(self.name + "_ctrl_offset", "rig")
+			print("hips ctrl")
 
 		#Parent Constraint
-		parentConstraint(self.name + "_ctrl", self.name, mo = True)
+		if fk:
+			parentConstraint(self.name + "_fk_ctrl_offset", self.name, mo = True)
+		elif not fk:
+			parentConstraint(self.name + "_ctrl_offset", self.name, mo = True)
+
+	def createIKControl(self, type, base, sj, ee, mj, rev = False):
+		#Get start joint and end effector position and rotation
+		self.sj_pos = xform(sj, q = True, t = True, ws = True)
+		self.ee_pos = xform(ee, q = True, t = True, ws = True)
+		self.ee_rot = xform(mj, q = True, ro = True, ws = True)
+		#Create IK Control Circle
+		self.IKctrl = MakeNurbCircle(r = 10, n = self.name + "_ik_ctrl")
+		self.IKctrl_offset = group(n = self.name + "_ik_ctrl_offset", em = True)
+		self.IKctrl.setNormalY(1)
+		self.IKctrl.setNormalZ(0)
+		parent(self.name + "_ik_ctrl", self.name + "_ik_ctrl_offset")
+		xform(self.name + "_ik_ctrl_offset", t = self.ee_pos, ro = self.ee_rot, ws = True)
 
 # SPINE #
 hips = Rig("hips", t = (0, 106.85, 2.652))
@@ -531,6 +557,9 @@ l_wrist = Rig("l_wrist", t = (45, 103, 6), p = "l_elbow")
 r_shoulder = Rig("r_shoulder", t = (-19, 150.912, 0), p = "r_clavicle")
 r_elbow = Rig("r_elbow", t = (-31, 125, 0), p = "r_shoulder")
 r_wrist = Rig("r_wrist", t = (-45, 103, 6), p = "r_elbow")
+
+l_arm = Rig("l_arm")
+r_arm = Rig("r_arm")
 
 # FINGERS #
 #THUMB#
