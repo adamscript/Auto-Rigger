@@ -617,6 +617,33 @@ class Rig:
 		elif not fk:
 			parentConstraint(self.name + "_ctrl", self.name, mo = False)
 
+		#Lock and Hide Attributes
+		offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
+		for i in offsetAttr:
+			if fk:
+				setAttr(self.name + "_fk_ctrl.overrideEnabled", 1)
+				setAttr(self.name + "_fk_ctrl_offset." + i, l = True, k = False, cb = False)
+			elif not fk:
+				setAttr(self.name + "_ctrl.overrideEnabled", 1)
+				setAttr(self.name + "_ctrl_offset." + i, l = True, k = False, cb = False)
+
+		#Colour Override
+		if(self.name.startswith('l_')):
+			if fk:
+				setAttr(self.name + "_fk_ctrl.overrideColor", 14)
+			elif not fk:
+				setAttr(self.name + "_ctrl.overrideColor", 14)
+		elif(self.name.startswith('r_')):
+			if fk:
+				setAttr(self.name + "_fk_ctrl.overrideColor", 13)
+			elif not fk:
+				setAttr(self.name + "_ctrl.overrideColor", 13)
+		else:
+			if fk:
+				setAttr(self.name + "_fk_ctrl.overrideColor", 17)
+			elif not fk:
+				setAttr(self.name + "_ctrl.overrideColor", 17)
+
 	def createIKControl(self, sj, ee, mj, rev = False):
 		#Get start joint and end effector position and rotation
 		self.sj_pos = xform(sj, q = True, t = True, ws = True)
@@ -647,7 +674,10 @@ class Rig:
 		self.ikpole_offset = group(n = self.name + "_ikpole_ctrl_offset", em = True)
 		parent(self.name + "_ikpole_ctrl", self.name + "_ikpole_ctrl_offset")
 		xform(self.name + "_ikpole_ctrl_offset", t = xform(mj, q = True, t = True, ws = True), ws = True)
-		move(0, 0, -30, self.name + "_ikpole_ctrl_offset", ls = True, r = True)
+		if(self.name == "l_arm" or self.name == "r_arm"):
+			move(0, 0, -30, self.name + "_ikpole_ctrl_offset", ls = True, r = True)
+		elif(self.name == "l_leg" or self.name == "r_leg"):
+			move(0, 0, 30, self.name + "_ikpole_ctrl_offset", ls = True, r = True)
 		makeIdentity(self.name + "_ikpole_ctrl", a = True, t = True)
 		parent(self.name + "_ikpole_ctrl_offset", 'rig')
 
@@ -695,8 +725,10 @@ class Rig:
 		parent(self.name + "_ikfk_toggle_ctrl_offset", 'rig')
 		pointConstraint(self.parent, self.name + "_ikfk_toggle_ctrl_offset", mo = True)
 		#Add ik fk toggle attribute
-		addAttr(self.name + "_ikfk_toggle_ctrl", ln = "IK_FK_Toggle", k = True, min = 0, max = 1)
-		
+		if(self.name == "l_arm" or self.name == "r_arm"):
+			addAttr(self.name + "_ikfk_toggle_ctrl", ln = "IK_FK_Toggle", k = True, min = 0, max = 1, dv = 0)
+		elif(self.name == "l_leg" or self.name == "r_leg"):
+			addAttr(self.name + "_ikfk_toggle_ctrl", ln = "IK_FK_Toggle", k = True, min = 0, max = 1, dv = 1)
 		#Connections
 		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', sj + '_parentConstraint1.' + sj + '_ikW0', f = True)
 		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', mj + '_parentConstraint1.' + mj + '_ikW0', f = True)
@@ -714,8 +746,23 @@ class Rig:
 		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
 	
 		#Lock and Hide Attributes
+		offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
+		for i in offsetAttr:
+			setAttr(self.name + "_ik_ctrl_offset." + i, l = True, k = False, cb = False)
+			setAttr(self.name + "_ikfk_toggle_ctrl." + i, l = True, k = False, cb = False)
 
 		#Colour Override
+		setAttr(self.name + "_ik_ctrl.overrideEnabled", 1)
+		if(self.name.startswith('l_')):
+			setAttr(self.name + "_ik_ctrl.overrideColor", 14)
+			setAttr(self.name + "_ikpole_ctrl.overrideColor", 14)
+			setAttr(self.name + "_ikpole_ctrl_connector.overrideColor", 14)
+			setAttr(self.name + "_ikfk_toggle_ctrl.overrideColor", 14)
+		elif(self.name.startswith('r_')):
+			setAttr(self.name + "_ik_ctrl.overrideColor", 13)
+			setAttr(self.name + "_ikpole_ctrl.overrideColor", 13)
+			setAttr(self.name + "_ikpole_ctrl_connector.overrideColor", 13)
+			setAttr(self.name + "_ikfk_toggle_ctrl.overrideColor", 13)
 
 		#Reverse Foot
 	def createReverseControl(self, sj, ee, mj, bj):
