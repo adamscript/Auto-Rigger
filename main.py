@@ -127,15 +127,15 @@ def deleteGuides(*args):
 	print("Guides Deleted!")
 
 def displayAxes(*args):
-	selectedJoints = cmds.ls(type = 'joint', sl = True)
+	selectedJoints = ls(type = 'joint', sl = True)
 
 	if not selectedJoints:
-		allJoints = cmds.ls(type = 'joint')
-		cmds.toggle(allJoints, la = True)
+		allJoints = ls(type = 'joint')
+		toggle(allJoints, la = True)
 	else:
 		print(selectedJoints)
 
-		cmds.toggle(selectedJoints, la = True)
+		toggle(selectedJoints, la = True)
 		print("Axes Displayed!")
 
 def resetPose(*args):
@@ -342,14 +342,14 @@ def createRig(*args):
 
 	#IK FK SYSTEMS
         
-	cmds.group('l_thigh_ik', 'l_thigh_fk', n =  'l_leg_ik_fk')
-	cmds.group('l_shoulder_ik', 'l_shoulder_fk', n = 'l_arm_ik_fk')
+	group('l_thigh_ik', 'l_thigh_fk', n =  'l_leg_ik_fk')
+	group('l_shoulder_ik', 'l_shoulder_fk', n = 'l_arm_ik_fk')
 
-	cmds.group('r_thigh_ik', 'r_thigh_fk', n =  'r_leg_ik_fk')
-	cmds.group('r_shoulder_ik', 'r_shoulder_fk', n = 'r_arm_ik_fk')
+	group('r_thigh_ik', 'r_thigh_fk', n =  'r_leg_ik_fk')
+	group('r_shoulder_ik', 'r_shoulder_fk', n = 'r_arm_ik_fk')
 
-	cmds.group('l_leg_ik_fk', 'l_arm_ik_fk', 'r_leg_ik_fk', 'r_arm_ik_fk', n = 'ik_fk_joints')
-	cmds.parent('ik_fk_joints', 'rig')
+	group('l_leg_ik_fk', 'l_arm_ik_fk', 'r_leg_ik_fk', 'r_arm_ik_fk', n = 'ik_fk_joints')
+	parent('ik_fk_joints', 'rig')
 
 	# CONTROLLERS #
 	
@@ -374,8 +374,8 @@ def createRig(*args):
 	r_elbow.createControl(fk = True)
 	r_wrist.createControl(fk = True)
 
-	l_arm.createIKControl('arm', 'collarbone', sj = 'l_shoulder', ee = 'l_wrist', mj = 'l_elbow')
-	r_arm.createIKControl('arm', 'collarbone', sj = 'r_shoulder', ee = 'r_wrist', mj = 'r_elbow')
+	l_arm.createIKControl(sj = 'l_shoulder', ee = 'l_wrist', mj = 'l_elbow')
+	r_arm.createIKControl(sj = 'r_shoulder', ee = 'r_wrist', mj = 'r_elbow')
 
 	l_finger_thumb_metacarpal.createControl(r = 1)
 	l_finger_thumb_proximal.createControl(r = 1)
@@ -447,8 +447,11 @@ def createRig(*args):
 	#r_foot_inner.createControl()
 	#r_foot_outer.createControl()
 
-	l_leg.createIKControl('leg', 'hip', sj = 'l_thigh', ee = 'l_ankle', mj = 'l_knee')
-	r_leg.createIKControl('leg', 'hip', sj = 'r_thigh', ee = 'r_ankle', mj = 'r_knee')
+	l_leg.createIKControl(sj = 'l_thigh', ee = 'l_ankle', mj = 'l_knee')
+	r_leg.createIKControl(sj = 'r_thigh', ee = 'r_ankle', mj = 'r_knee')
+
+	l_foot.createReverseControl(sj = 'l_ankle', ee = 'l_foot_toes', mj = 'l_foot_ball', bj = 'l_foot_heel')
+	r_foot.createReverseControl(sj = 'r_ankle', ee = 'r_foot_toes', mj = 'r_foot_ball', bj = 'r_foot_heel')
 	
 	print("Rig Created!")
 
@@ -520,9 +523,11 @@ class Rig:
 			pass
 
 		if rev:
-			self.jointrev = joint(radius = 1, p = self.joint_pos, n = self.name + "_rev")
-
-			#self.jointrev.hide()
+			self.jointrev = Joint(radius = 1, p = self.joint_pos, n = self.name + "_rev")
+			if (self.name == "l_ankle" or self.name == "r_ankle"):
+				self.jointrev.setParent(self.parent)
+			else:
+				self.jointrev.setParent(self.parent + "_rev")
 			print("rev")
 		elif not rev:
 			pass
@@ -608,11 +613,11 @@ class Rig:
 
 		#Parent Constraint
 		if fk:
-			parentConstraint(self.name + "_fk_ctrl", self.name + "_fk", mo = True)
+			parentConstraint(self.name + "_fk_ctrl", self.name + "_fk", mo = False)
 		elif not fk:
-			parentConstraint(self.name + "_ctrl", self.name, mo = True)
+			parentConstraint(self.name + "_ctrl", self.name, mo = False)
 
-	def createIKControl(self, type, base, sj, ee, mj, rev = False):
+	def createIKControl(self, sj, ee, mj, rev = False):
 		#Get start joint and end effector position and rotation
 		self.sj_pos = xform(sj, q = True, t = True, ws = True)
 		self.ee_pos = xform(ee, q = True, t = True, ws = True)
@@ -707,12 +712,80 @@ class Rig:
 		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_IK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', self.name + '_FK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
-
+	
 		#Lock and Hide Attributes
 
 		#Colour Override
 
 		#Reverse Foot
+	def createReverseControl(self, sj, ee, mj, bj):
+		parent(sj + "_rev", self.parent + "_ik_ctrl")
+		reroot(bj + "_rev")
+
+		ikHandle(n = mj + '_ikHandle', sj = sj + '_ik', ee = mj + '_ik', sol = 'ikSCsolver')
+		ikHandle(n = ee + '_ikHandle', sj = mj + '_ik', ee = ee + '_ik', sol = 'ikSCsolver')
+		parent(mj + '_ikHandle', mj + '_rev')
+		parent(ee + '_ikHandle', ee + '_rev')
+		parent(self.parent + '_ikHandle', sj + '_rev')
+		#parent(bj + '_rev', self.parent + '_ik_ctrl')
+
+		group(ee + '_ikHandle', n = self.name + "_toes_tap")
+		group(bj + '_rev', n = self.name + '_bank_inner')
+		group(self.name + '_bank_inner', n = self.name + '_bank_outer')
+
+		inner_pos = xform(self.name + '_inner_guide', q = True, t = True, ws = True)
+		outer_pos = xform(self.name + '_outer_guide', q = True, t = True, ws = True)
+		ball_pos = xform(self.name + '_ball_guide', q = True, t = True, ws = True)
+		xform(ee + '_tap.rotatePivot', t = ball_pos, ws = True)
+		xform(self.name + '_bank_inner.rotatePivot', t = inner_pos, ws = True)
+		xform(self.name + '_bank_outer.rotatePivot', t = outer_pos, ws = True)
+
+		select(self.parent + '_ikfk_toggle_ctrl')
+		addAttr(ln = "Heel_Twist", k = True)
+		addAttr(ln = "Toes_Twist", k = True)
+		addAttr(ln = "Toe_Tap", k = True)
+		addAttr(ln = "Bank", k = True)
+		addAttr(ln = "Roll", k = True, min = -30, max = 30, dv = 0)
+
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Heel_Twist', bj + '_rev.rotateY')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Toes_Twist', ee + '_rev.rotateY')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Toe_Tap', ee + '_tap.rotateX')
+
+		shadingNode('condition', n = self.name + '_bank_condition', au = True)
+		setAttr(self.name + '_bank_condition.operation', 2)
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Bank', self.name + '_bank_condition.colorIfFalseG')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Bank', self.name + '_bank_condition.colorIfTrueR')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Bank', self.name + '_bank_condition.firstTerm')
+		connectAttr(self.name + '_bank_condition.outColorR', self.name + '_bank_inner.rotateZ')
+		connectAttr(self.name + '_bank_condition.outColorG', self.name + '_bank_outer.rotateZ')
+
+		shadingNode('condition', au = True, n = bj + '_roll_condition')
+		shadingNode('condition', au = True, n = mj + '_roll_condition')
+		shadingNode('condition', au = True, n = ee + '_roll_condition')
+		shadingNode('multiplyDivide', au = True, n = self.name + '_roll_multi')
+		shadingNode('plusMinusAverage', au = True, n = self.name + '_roll_pma')
+		setAttr(bj + '_roll_condition.operation', 4)
+		setAttr(mj + '_roll_condition.operation', 2)
+		setAttr(ee + '_roll_condition.operation', 2)
+		setAttr(ee + '_roll_condition.secondTerm', 10)
+		setAttr(self.name + '_roll_multi.input2X', 1)
+		setAttr(self.name + '_roll_multi.input2Y', 1)
+		setAttr(self.name + '_roll_multi.input2Z', 1)
+		setAttr(self.name + '_roll_pma.operation', 2)
+		setAttr(self.name + '_roll_pma.input1D[1]', 10)
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', bj + '_roll_condition.colorIfTrueR')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', bj + '_roll_condition.firstTerm')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', mj + '_roll_condition.colorIfTrueR')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', mj + '_roll_condition.firstTerm')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', self.name + '_roll_pma.input1D[0]')
+		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', ee + '_roll_condition.firstTerm')
+		connectAttr(self.name + '_roll_pma.output1D', ee + '_roll_condition.colorIfTrueR')
+		connectAttr(bj + '_roll_condition.outColorR', self.name + '_roll_multi.input1X')
+		connectAttr(mj + '_roll_condition.outColorR', self.name + '_roll_multi.input1Y')
+		connectAttr(ee + '_roll_condition.outColorR', self.name + '_roll_multi.input1Z')
+		connectAttr(self.name + '_roll_multi.outputX', bj + '_rev.rotateZ')
+		connectAttr(self.name + '_roll_multi.outputY', mj + '_rev.rotateZ')
+		connectAttr(self.name + '_roll_multi.outputZ', ee + '_rev.rotateZ')
 
 		#IK FK System
 
@@ -818,6 +891,9 @@ r_foot_outer = Rig("r_foot_outer", t = (-25.864, 3.639, 7.702), p = "r_foot_heel
 
 l_leg = Rig("l_leg", p = "l_ankle")
 r_leg = Rig("r_leg", p = "r_ankle")
+
+l_foot = Rig("l_foot", p = "l_leg")
+r_foot = Rig("r_foot", p = "r_leg")
 
 #MAKE IK, HUMANISE, AND SKIN WEIGHT A CHECKBOX OPTION
 #ADD MIRROR CONTROLS
