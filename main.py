@@ -522,6 +522,22 @@ def progressNum(max):
 	return str(int((prog/max)*100))
 
 def editControlShape():
+	#Eye_LookAt
+	xform('l_eye_ctrl', t = (0, 15, 0), r = True)
+	xform('r_eye_ctrl', t = (0, 15, 0), r = True)
+
+	eyesLookAt_ctrl = MakeNurbCircle(r = 3, n = "eyesLookAt_ctrl")
+	group('eyesLookAt_ctrl', n = "eyesLookAt_ctrl_offset")
+	xform("eyesLookAt_ctrl_offset", t = (0, (xform('l_eye_ctrl', q = True, t = True, ws = True))[1], (xform('l_eye_ctrl', q = True, t = True, ws = True))[2]), ws = True)
+	xform('eyesLookAt_ctrlShape.cv[0:8]', s = (3, 2, 1), r = True)
+
+	parent('l_eye_ctrl_offset', 'eyesLookAt_ctrl')
+	parent('r_eye_ctrl_offset', 'eyesLookAt_ctrl')
+	parent('eyesLookAt_ctrl_offset', 'rig')
+	
+	#Neck
+	xform('neck_ctrl.rotatePivot', t = xform('neck_guide', q = True, t = True, ws = True), ws = True)
+	
 	#Collarbone
 	xform('collarbone_ctrlShape.cv[0:8]', s = (2, 1, 1), r = True)
 	xform('collarbone_ctrlShape.cv[1]', t = (0, -20, 0), r = True)
@@ -534,6 +550,20 @@ def editControlShape():
 	#R_Clavicle
 	xform('r_clavicle_ctrlShape.cv[0:8]', s = (1, 1, 0.5), r = True)
 	xform('r_clavicle_ctrl.rotatePivot', t = xform('r_clavicle_guide', q = True, t = True, ws = True), ws = True)
+
+	#Hip
+	l_thigh_pos = xform("l_thigh_guide", q = True, t = True, ws = True)
+	r_thigh_pos = xform("r_thigh_guide", q = True, t = True, ws = True)
+	l_knee_pos = xform("l_knee_guide", q = True, t = True, ws = True)
+	r_knee_pos = xform("r_knee_guide", q = True, t = True, ws = True)
+
+	xform('hip_ctrl.ep[0]', t = (0, -6, 0), r = True)
+	xform('hip_ctrl.ep[4]', t = (0, -6, 0), r = True)
+	xform('hip_ctrl.ep[5:7]', t = (0, 2, 0), r = True)
+	xform('hip_ctrl.ep[1:3]', t = (0, 2, 0), r = True)
+	xform('hip_ctrl.ep[6]', t = (0, 3.5, 0), r = True)
+	xform('hip_ctrl.ep[2]', t = (0, 3.5, 0), r = True)
+	xform('hip_ctrl.ep[0:8]', t = (0, (((l_thigh_pos[1] - l_knee_pos[1]) / 4) * -1), 0), s = (1, 1, 0.8), r = True)
 
 #ADD COMMANDS TO BUTTONS WHEN PRESSED
 guides_btn.setCommand(createGuides)
@@ -719,6 +749,8 @@ class Rig:
 				pass
 			elif(self.name == "jaw"):
 				parentConstraint(self.name + "_ctrl", self.name, mo = True)
+			elif(self.name.endswith("_eye")):
+				aimConstraint(self.name + "_ctrl", self.name, aim = (0, 1, 0), u = (0, 0, 1) , mo = True)
 			else:
 				parentConstraint(self.name + "_ctrl", self.name, mo = False)
 
