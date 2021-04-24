@@ -23,8 +23,10 @@ autorig_btn = button(l = "Awto Rig!", w = 200, h = 150, p = layout)
 
 def createGuides(*args):
 	group(n = "guides")
+	global prog
+	prog = 1
 
-	hips.createGuide(s = 10)
+	hip.createGuide(s = 10)
 	waist.createGuide(s = 10)
 	chest.createGuide(s = 10)
 	sternum.createGuide(s = 10)
@@ -163,15 +165,16 @@ def createRig(*args):
 	group("l_hand_ctrl", n = "l_hand_ctrl_offset")
 	group(n = "r_hand_ctrl", em = True)
 	group("r_hand_ctrl", n = "r_hand_ctrl_offset")
+	
+	global prog
+	prog = 1
 
 	# JOINTS #
 
-	hips.createJoint()
+	hip.createJoint()
 	waist.createJoint()
 	chest.createJoint()
 	sternum.createJoint()
-	l_clavicle.createJoint()
-	r_clavicle.createJoint()
 
 	neck.createJoint()
 	head.createJoint()
@@ -180,9 +183,12 @@ def createRig(*args):
 	l_eye.createJoint()
 	r_eye.createJoint()
 
+	
+	l_clavicle.createJoint()
 	l_shoulder.createJoint(ik = True)
 	l_elbow.createJoint(ik = True)
 	l_wrist.createJoint(ik = True)
+	r_clavicle.createJoint()
 	r_shoulder.createJoint(ik = True)
 	r_elbow.createJoint(ik = True)
 	r_wrist.createJoint(ik = True)
@@ -258,12 +264,10 @@ def createRig(*args):
 	r_foot_outer.createJoint()
 
 	#Orient Joint
-	hips.orientJoint()
+	hip.orientJoint()
 	waist.orientJoint()
 	chest.orientJoint()
 	sternum.orientJoint()
-	l_clavicle.orientJoint()
-	r_clavicle.orientJoint()
 
 	neck.orientJoint()
 	head.orientJoint()
@@ -271,10 +275,12 @@ def createRig(*args):
 	chin.orientJoint(oj = False)
 	l_eye.orientJoint(oj = False)
 	r_eye.orientJoint(oj = False)
-
+	
+	l_clavicle.orientJoint()
 	l_shoulder.orientJoint(ik = True)
 	l_elbow.orientJoint(ik = True)
 	l_wrist.orientJoint(oj = False, ik = True)
+	r_clavicle.orientJoint()
 	r_shoulder.orientJoint(ik = True)
 	r_elbow.orientJoint(ik = True)
 	r_wrist.orientJoint(oj = False, ik = True)
@@ -362,28 +368,28 @@ def createRig(*args):
 
 	# CONTROLLERS #
 	
-	hips.createControl(r = 10)
-	waist.createControl(r = 10)
-	chest.createControl(r = 10)
-	sternum.createControl()
-	l_clavicle.createControl()
-	r_clavicle.createControl()
+	hip.createControl(r = 25)
+	waist.createControl(r = 20)
+	chest.createControl(r = 20)
+	sternum.createControl(r = 0)
 
 	collarbones.createControl(r = 10)
 
-	neck.createControl(r = 5)
-	head.createControl(r = 5)
-	jaw.createControl(r = 5)
-	chin.createControl(r = 2)
+	neck.createControl(r = 10)
+	head.createControl(r = 10, nr = 'z')
+	jaw.createControl(r = 2)
+	#chin.createControl(r = 2)
 	l_eye.createControl(r = 2)
 	r_eye.createControl(r = 2)
 
-	l_shoulder.createControl(r = 5, fk = True)
-	l_elbow.createControl(r = 5, fk = True)
-	l_wrist.createControl(r = 5, fk = True)
-	r_shoulder.createControl(r = 5, fk = True)
-	r_elbow.createControl(r = 5, fk = True)
-	r_wrist.createControl(r = 5, fk = True)
+	l_clavicle.createControl()
+	l_shoulder.createControl(r = 10, fk = True)
+	l_elbow.createControl(r = 10, fk = True)
+	l_wrist.createControl(r = 10, fk = True)
+	r_clavicle.createControl()
+	r_shoulder.createControl(r = 10, fk = True)
+	r_elbow.createControl(r = 10, fk = True)
+	r_wrist.createControl(r = 10, fk = True)
 
 	l_arm.createIKControl(sj = 'l_shoulder', ee = 'l_wrist', mj = 'l_elbow')
 	r_arm.createIKControl(sj = 'r_shoulder', ee = 'r_wrist', mj = 'r_elbow')
@@ -441,18 +447,18 @@ def createRig(*args):
 	r_finger_pinky_distal.createControl()
 	r_finger_pinky_tip.createControl()
 
-	l_thigh.createControl(r = 5, fk = True)
-	l_knee.createControl(r = 5, fk = True)
-	l_ankle.createControl(r = 5, fk = True)
-	l_foot_ball.createControl()
+	l_thigh.createControl(r = 15, fk = True)
+	l_knee.createControl(r = 10, fk = True)
+	l_ankle.createControl(r = 10, fk = True)
+	l_foot_ball.createControl(r = 5)
 	l_foot_toes.createControl(r = 5)
 	#l_foot_heel.createControl()
 	#l_foot_inner.createControl()
 	#l_foot_outer.createControl()
-	r_thigh.createControl(r = 5, fk = True)
-	r_knee.createControl(r = 5, fk = True)
-	r_ankle.createControl(r = 5, fk = True)
-	r_foot_ball.createControl()
+	r_thigh.createControl(r = 15, fk = True)
+	r_knee.createControl(r = 10, fk = True)
+	r_ankle.createControl(r = 10, fk = True)
+	r_foot_ball.createControl(r = 5)
 	r_foot_toes.createControl(r = 5)
 	#r_foot_heel.createControl()
 	#r_foot_inner.createControl()
@@ -466,17 +472,16 @@ def createRig(*args):
 	
 	#IK FK SYSTEMS
         
-	parentConstraint('hips_ctrl', 'l_leg_ik_fk', mo = True)
+	parentConstraint('hip_ctrl', 'l_leg_ik_fk', mo = True)
 	parentConstraint('collarbones_ctrl', 'l_arm_ik_fk', mo = True)
 	parent('l_clavicle_ctrl', 'collarbones_ctrl')
 
-	parentConstraint('hips_ctrl', 'r_leg_ik_fk', mo = True)
+	parentConstraint('hip_ctrl', 'r_leg_ik_fk', mo = True)
 	parentConstraint('collarbones_ctrl', 'r_arm_ik_fk', mo = True)
 	parent('r_clavicle_ctrl', 'collarbones_ctrl')
 
 	print("Rig Created!")
 
-prog = 1
 def progressNum(max):
 	global prog
 	prog+=1
@@ -528,7 +533,9 @@ class Rig:
 	def createJoint(self, ik = False, rev = False):
 		self.joint_pos = xform(self.name + "_guide", q = True, t = True, ws = True)
 		self.joint = Joint(n = self.name, radius = 1, p = self.joint_pos)
-		if(self.parent != ""):
+		if (self.name.endswith("_foot_heel") or self.name.endswith("_foot_inner") or self.name.endswith("_foot_outer")):
+			delete(self.name)
+		elif(self.parent != ""):
 			self.joint.setParent(self.parent)
 		else:
 			self.joint.setParent("rig")
@@ -536,7 +543,7 @@ class Rig:
 		if ik:
 			self.jointIK = Joint(n = self.name + "_ik", radius = 1, p = self.joint_pos)
 			self.jointFK = Joint(n = self.name + "_fk", radius = 1, p = self.joint_pos)
-			if(self.parent == "l_clavicle" or self.parent == "r_clavicle" or self.parent == "hips"):
+			if(self.parent == "l_clavicle" or self.parent == "r_clavicle" or self.parent == "hip"):
 				self.jointIK.setParent(self.parent)
 				self.jointFK.setParent(self.parent)
 			else:
@@ -586,7 +593,7 @@ class Rig:
 		
 		print("Creating Joints... (" + progressNum(242) + "%)")
 
-	def createControl(self, r = 1, nr = "Y", fk = False):
+	def createControl(self, r = 2, nr = "Y", fk = False):
 		#Create circle
 		#self.guide = ls(self.name + "_guide")
 
@@ -619,11 +626,14 @@ class Rig:
 			self.neck_pos = xform("neck_guide", q = True, t = True, ws = True)
 			self.head_pos = xform("head_guide", q = True, t = True, ws = True)
 			xform(self.ctrl_offset, t = ((self.neck_pos[0], (self.neck_pos[1] + self.head_pos[1])/2, self.neck_pos[2])), ro = xform(self.name, q = True, ro = True, ws = True))
+		elif(self.name == "jaw"):
+			xform(self.ctrl_offset, t = xform("chin_guide", q = True, t = True, ws = True), ro = xform("chin", q = True, ro = True, ws = True))
+			xform(self.name + "_ctrl.rotatePivot", t = xform("jaw_guide", q = True, t = True, ws = True), a = True, ws = True)
 		else:
 			xform(self.ctrl_offset, t = xform(self.name + "_guide", q = True, t = True, ws = True), ro = xform(self.name, q = True, ro = True, ws = True))
 
 		if fk:
-			if (self.parent.endswith("_clavicle") or self.parent == "hips"):
+			if (self.parent.endswith("_clavicle") or self.parent == "hip"):
 				parent(self.name + "_fk_ctrl_offset", self.parent + "_ctrl")
 			else:
 				parent(self.name + "_fk_ctrl_offset", self.parent + "_fk_ctrl")
@@ -651,6 +661,8 @@ class Rig:
 		elif not fk:
 			if(self.name == "collarbones"):
 				pass
+			elif(self.name == "jaw"):
+				parentConstraint(self.name + "_ctrl", self.name, mo = True)
 			else:
 				parentConstraint(self.name + "_ctrl", self.name, mo = False)
 
@@ -879,17 +891,15 @@ class Rig:
 		print("Creating Controllers... (" + progressNum(242) + "%)")
 
 # SPINE #
-hips = Rig("hips", t = (0, 106.85, 2.652))
-waist = Rig("waist", t = (0, 119.473, 5), p = "hips")
+hip = Rig("hip", t = (0, 106.85, 2.652))
+waist = Rig("waist", t = (0, 119.473, 5), p = "hip")
 chest = Rig("chest", t = (0, 131.713, 5), p = "waist")
 sternum = Rig("sternum", t = (0, 153.569, 1.886), p = "chest")
-l_clavicle = Rig("l_clavicle", t = (3.107, 152.95, 4.807), p = "sternum")
-r_clavicle = Rig("r_clavicle", t = (-3.107, 152.95, 4.807), p = "sternum")
 
 collarbones = Rig("collarbones", p = "chest")
 
 # HEAD #
-neck = Rig("neck", t = (0, 156.891, 1.886), p = "chest")
+neck = Rig("neck", t = (0, 156.891, 1.886), p = "sternum")
 head = Rig("head", t = (0, 170.281, 3.69), p = "neck")
 jaw = Rig("jaw", t = (0, 170.281, 7.175), p = "head")
 chin = Rig("chin", t = (0, 163.448, 15.213), p = "jaw")
@@ -897,9 +907,11 @@ l_eye = Rig("l_eye", t = (3.125, 175.471, 12.969), p = "head")
 r_eye = Rig("r_eye", t = (-3.125, 175.471, 12.969), p = "head")
 
 # ARMS #
+l_clavicle = Rig("l_clavicle", t = (3.107, 152.95, 4.807), p = "sternum")
 l_shoulder = Rig("l_shoulder", t = (19, 150.912, 0), p = "l_clavicle")
 l_elbow = Rig("l_elbow", t = (31, 125, 0), p = "l_shoulder")
 l_wrist = Rig("l_wrist", t = (45, 103, 6), p = "l_elbow")
+r_clavicle = Rig("r_clavicle", t = (-3.107, 152.95, 4.807), p = "sternum")
 r_shoulder = Rig("r_shoulder", t = (-19, 150.912, 0), p = "r_clavicle")
 r_elbow = Rig("r_elbow", t = (-31, 125, 0), p = "r_shoulder")
 r_wrist = Rig("r_wrist", t = (-45, 103, 6), p = "r_elbow")
@@ -963,7 +975,7 @@ r_finger_pinky_distal = Rig("r_finger_pinky_distal", t = (-49, 89.103, 5.64), p 
 r_finger_pinky_tip = Rig("r_finger_pinky_tip", t = (-48, 87.794, 5.077), p = "r_finger_pinky_distal")
 
 # LEGS #
-l_thigh = Rig("l_thigh", t = (8.782, 101.69, 1.97), p = "hips")
+l_thigh = Rig("l_thigh", t = (8.782, 101.69, 1.97), p = "hip")
 l_knee = Rig("l_knee", t = (15, 54, 3), p = "l_thigh")
 l_ankle = Rig("l_ankle", t = (18.901, 10, 0), p = "l_knee")
 l_foot_ball = Rig("l_foot_ball", t = (21.058, 3.639, 14.117), p = "l_ankle")
@@ -971,7 +983,7 @@ l_foot_toes = Rig("l_foot_toes", t = (22.253, 3.639, 21.534), p = "l_foot_ball")
 l_foot_heel = Rig("l_foot_heel", t = (18.406, 3.639, -4.419), p = "l_foot_toes")
 l_foot_inner = Rig("l_foot_inner", t = (15.229, 3.639, 7.702), p = "l_foot_heel")
 l_foot_outer = Rig("l_foot_outer", t = (25.864, 3.639, 7.702), p = "l_foot_heel")
-r_thigh = Rig("r_thigh", t = (-8.782, 101.69, 1.97), p = "hips")
+r_thigh = Rig("r_thigh", t = (-8.782, 101.69, 1.97), p = "hip")
 r_knee = Rig("r_knee", t = (-15, 54, 3), p = "r_thigh")
 r_ankle = Rig("r_ankle", t = (-18.901, 10, 0), p = "r_knee")
 r_foot_ball = Rig("r_foot_ball", t = (-21.058, 3.639, 14.117), p = "r_ankle")
