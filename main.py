@@ -161,6 +161,19 @@ def createRig(*args):
 	group(n = "rig")
 	parent('rig', w = True)
 
+	root_ctrl = MakeNurbCircle(r = 50, n = "root_ctrl")
+	root_ctrl.setNormalY(1)
+	root_ctrl.setNormalZ(0)
+	group('root_ctrl', n = "root_ctrl_offset")
+	parent('root_ctrl_offset', 'rig')
+
+	spine_ctrl = MakeNurbCircle(r = 25, n = "spine_ctrl")
+	spine_ctrl.setNormalY(1)
+	spine_ctrl.setNormalZ(0)
+	group('spine_ctrl', n = "spine_ctrl_offset")
+	xform('spine_ctrl_offset', t = xform("hip_guide", q = True, t = True, ws = True))
+	parent('spine_ctrl_offset', 'root_ctrl')
+
 	group(n = "l_hand_ctrl", em = True)
 	group("l_hand_ctrl", n = "l_hand_ctrl_offset")
 	group(n = "r_hand_ctrl", em = True)
@@ -374,7 +387,7 @@ def createRig(*args):
 	collarbone.createControl(r = 10)
 
 	neck.createControl(r = 10)
-	head.createControl(r = 10, nr = 'z')
+	head.createControl(r = 15, nr = 'z')
 	jaw.createControl(r = 2)
 	#chin.createControl(r = 2)
 	l_eye.createControl(r = 2)
@@ -487,32 +500,34 @@ def createRig(*args):
 	#lock and hide attributes
 
 	offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
-	offsetGroup = cmds.ls('*_offset')
-	ikfkToggle = cmds.ls('*ikfk_toggle_ctrl')
+	offsetGroup = ls('*_offset')
+	ikfkToggle = ls('*ikfk_toggle_ctrl')
 	
 	for i in offsetGroup:
 		for j in offsetAttr:
-			cmds.setAttr(i + '.' + j, l = True, k = False, cb = False)
+			setAttr(i + '.' + j, l = True, k = False, cb = False)
 
 	for i in ikfkToggle:
 		for j in offsetAttr:
-			cmds.setAttr(i + '.' + j, l = True, k = False, cb = False)
+			setAttr(i + '.' + j, l = True, k = False, cb = False)
 
 	#colour overrides
 
-	all_ctrl = cmds.ls('*ctrl')
-	all_l_ctrl = cmds.ls('l_*ctrl')
-	all_r_ctrl = cmds.ls('r_*ctrl')
+	all_ctrl = ls('*ctrl')
+	all_l_ctrl = ls('l_*ctrl')
+	all_r_ctrl = ls('r_*ctrl')
 
 	for i in all_ctrl:
-		cmds.setAttr(i + ".overrideEnabled", 1)
-		cmds.setAttr(i + ".overrideColor", 17)
+		setAttr(i + ".overrideEnabled", 1)
+		setAttr(i + ".overrideColor", 17)
 
 	for i in all_l_ctrl:
-		cmds.setAttr(i + ".overrideColor", 14)
+		setAttr(i + ".overrideColor", 14)
 
 	for i in all_r_ctrl:
-		cmds.setAttr(i + ".overrideColor", 13)
+		setAttr(i + ".overrideColor", 13)
+
+	setAttr("root_ctrl.overrideColor", 18)
 
 	print("Rig Created!")
 
@@ -527,13 +542,15 @@ def editControlShape():
 	xform('r_eye_ctrl', t = (0, 15, 0), r = True)
 
 	eyesLookAt_ctrl = MakeNurbCircle(r = 3, n = "eyesLookAt_ctrl")
+	eyesLookAt_ctrl.setNormalY(1)
+	eyesLookAt_ctrl.setNormalZ(0)
 	group('eyesLookAt_ctrl', n = "eyesLookAt_ctrl_offset")
-	xform("eyesLookAt_ctrl_offset", t = (0, (xform('l_eye_ctrl', q = True, t = True, ws = True))[1], (xform('l_eye_ctrl', q = True, t = True, ws = True))[2]), ws = True)
-	xform('eyesLookAt_ctrlShape.cv[0:8]', s = (3, 2, 1), r = True)
+	xform("eyesLookAt_ctrl_offset", t = (0, (xform('l_eye_ctrl', q = True, t = True, ws = True))[1], (xform('l_eye_ctrl', q = True, t = True, ws = True))[2]), ro = xform('l_eye_ctrl_offset', q = True, ro = True, ws = True), ws = True)
+	xform('eyesLookAt_ctrlShape.cv[0:8]', s = (3, 1, 2), r = True)
 
 	parent('l_eye_ctrl_offset', 'eyesLookAt_ctrl')
 	parent('r_eye_ctrl_offset', 'eyesLookAt_ctrl')
-	parent('eyesLookAt_ctrl_offset', 'rig')
+	parent('eyesLookAt_ctrl_offset', 'root_ctrl')
 	
 	#Neck
 	xform('neck_ctrl.rotatePivot', t = xform('neck_guide', q = True, t = True, ws = True), ws = True)
@@ -726,20 +743,22 @@ class Rig:
 		elif not fk:
 			if (self.parent.endswith("_wrist")):
 				if(self.name.startswith("l_")):
-					parent('l_hand_ctrl_offset', 'rig')
+					parent('l_hand_ctrl_offset', 'root_ctrl')
 					parent(self.name + "_ctrl_offset", "l_hand_ctrl")
 					parentConstraint(self.parent, 'l_hand_ctrl', mo = True)
 				elif(self.name.startswith("r_")):
-					parent('r_hand_ctrl_offset', 'rig')
+					parent('r_hand_ctrl_offset', 'root_ctrl')
 					parent(self.name + "_ctrl_offset", "r_hand_ctrl")
 					parentConstraint(self.parent, 'r_hand_ctrl', mo = True)
 			elif (self.parent.endswith("_ankle")):
-				parent(self.name + "_ctrl_offset", "rig")
+				parent(self.name + "_ctrl_offset", "root_ctrl")
 				parentConstraint(self.parent, self.name + "_ctrl_offset", mo = True)
+			elif (self.name == "hip" or self.name == "waist"):
+				parent(self.name + "_ctrl_offset", "spine_ctrl")
 			elif (self.parent != ""):
 				parent(self.name + "_ctrl_offset", self.parent + "_ctrl")
 			else:
-				parent(self.name + "_ctrl_offset", "rig")
+				parent(self.name + "_ctrl_offset", "root_ctrl")
 
 		#Parent Constraint
 		if fk:
@@ -753,33 +772,6 @@ class Rig:
 				aimConstraint(self.name + "_ctrl", self.name, aim = (0, 1, 0), u = (0, 0, 1) , mo = True)
 			else:
 				parentConstraint(self.name + "_ctrl", self.name, mo = False)
-
-		'''#Lock and Hide Attributes
-		offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
-		for i in offsetAttr:
-			if fk:
-				setAttr(self.name + "_fk_ctrl.overrideEnabled", 1)
-				setAttr(self.name + "_fk_ctrl_offset." + i, l = True, k = False, cb = False)
-			elif not fk:
-				setAttr(self.name + "_ctrl.overrideEnabled", 1)
-				setAttr(self.name + "_ctrl_offset." + i, l = True, k = False, cb = False)
-
-		#Colour Override
-		if(self.name.startswith('l_')):
-			if fk:
-				setAttr(self.name + "_fk_ctrl.overrideColor", 14)
-			elif not fk:
-				setAttr(self.name + "_ctrl.overrideColor", 14)
-		elif(self.name.startswith('r_')):
-			if fk:
-				setAttr(self.name + "_fk_ctrl.overrideColor", 13)
-			elif not fk:
-				setAttr(self.name + "_ctrl.overrideColor", 13)
-		else:
-			if fk:
-				setAttr(self.name + "_fk_ctrl.overrideColor", 17)
-			elif not fk:
-				setAttr(self.name + "_ctrl.overrideColor", 17)'''
 		
 		print("Creating Controllers... (" + progressNum(240) + "%)")
 
@@ -795,7 +787,7 @@ class Rig:
 		self.IKctrl.setNormalZ(0)
 		parent(self.name + "_ik_ctrl", self.name + "_ik_ctrl_offset")
 		xform(self.name + "_ik_ctrl_offset", t = self.ee_pos, ro = self.ee_rot, ws = True)
-		parent(self.name + "_ik_ctrl_offset", "rig")
+		parent(self.name + "_ik_ctrl_offset", "root_ctrl")
 		orientConstraint(self.name + "_ik_ctrl", ee + "_ik")
 		#Create IK Handle
 		self.ikhandle = ikHandle(n = self.name + "_ikHandle", sj = sj + "_ik", ee = ee + "_ik")
@@ -818,7 +810,7 @@ class Rig:
 		elif(self.name == "l_leg" or self.name == "r_leg"):
 			move(0, 0, 30, self.name + "_ikpole_ctrl_offset", ls = True, r = True)
 		makeIdentity(self.name + "_ikpole_ctrl", a = True, t = True)
-		parent(self.name + "_ikpole_ctrl_offset", 'rig')
+		parent(self.name + "_ikpole_ctrl_offset", 'root_ctrl')
 
 		poleVectorConstraint(self.name + "_ikpole_ctrl", self.name + "_ikHandle")
 
@@ -829,7 +821,7 @@ class Rig:
 		parent(self.name + "_ikpole_ctrl_clusterHandle", self.name + "_ikpole_ctrl")
 		setAttr(self.name + "_ikpole_ctrl_connector.overrideEnabled", 1)
 		setAttr(self.name + "_ikpole_ctrl_connector.overrideDisplayType", 2)
-		parent(self.name + "_ikpole_ctrl_connector", 'rig')
+		parent(self.name + "_ikpole_ctrl_connector", self.name + '_ikpole_ctrl')
 		setAttr(self.name + "_ikpole_clusterHandle.visibility", 0)
 		setAttr(self.name + "_ikpole_ctrl_clusterHandle.visibility", 0)
 
@@ -863,7 +855,7 @@ class Rig:
 		parent(self.name + "_ikfk_toggle_ctrl", self.name + "_ikfk_toggle_ctrl_offset")
 		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (xform(ee, q = True, t = True, ws = True)))
 		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (0, 10, -20), r = True)
-		parent(self.name + "_ikfk_toggle_ctrl_offset", 'rig')
+		parent(self.name + "_ikfk_toggle_ctrl_offset", 'root_ctrl')
 		pointConstraint(self.parent, self.name + "_ikfk_toggle_ctrl_offset", mo = True)
 		#Add ik fk toggle attribute
 		if(self.name == "l_arm" or self.name == "r_arm"):
@@ -885,25 +877,6 @@ class Rig:
 		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_IK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', self.name + '_FK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
-	
-		'''#Lock and Hide Attributes
-		offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
-		for i in offsetAttr:
-			setAttr(self.name + "_ik_ctrl_offset." + i, l = True, k = False, cb = False)
-			setAttr(self.name + "_ikfk_toggle_ctrl." + i, l = True, k = False, cb = False)
-
-		#Colour Override
-		setAttr(self.name + "_ik_ctrl.overrideEnabled", 1)
-		if(self.name.startswith('l_')):
-			setAttr(self.name + "_ik_ctrl.overrideColor", 14)
-			setAttr(self.name + "_ikpole_ctrl.overrideColor", 14)
-			setAttr(self.name + "_ikpole_ctrl_connector.overrideColor", 14)
-			setAttr(self.name + "_ikfk_toggle_ctrl.overrideColor", 14)
-		elif(self.name.startswith('r_')):
-			setAttr(self.name + "_ik_ctrl.overrideColor", 13)
-			setAttr(self.name + "_ikpole_ctrl.overrideColor", 13)
-			setAttr(self.name + "_ikpole_ctrl_connector.overrideColor", 13)
-			setAttr(self.name + "_ikfk_toggle_ctrl.overrideColor", 13)'''
 
 		print("Creating IK Controls... (" + progressNum(240) + "%)")
 
