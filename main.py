@@ -29,7 +29,7 @@ def createGuides(*args):
 	hip.createGuide(s = 10)
 	waist.createGuide(s = 10)
 	chest.createGuide(s = 10)
-	sternum.createGuide(s = 10)
+	collarbone.createGuide(s = 10)
 	l_clavicle.createGuide(s = 5)
 	r_clavicle.createGuide(s = 5)
 
@@ -174,7 +174,7 @@ def createRig(*args):
 	hip.createJoint()
 	waist.createJoint()
 	chest.createJoint()
-	sternum.createJoint()
+	collarbone.createJoint()
 
 	neck.createJoint()
 	head.createJoint()
@@ -267,7 +267,7 @@ def createRig(*args):
 	hip.orientJoint()
 	waist.orientJoint()
 	chest.orientJoint()
-	sternum.orientJoint()
+	collarbone.orientJoint()
 
 	neck.orientJoint()
 	head.orientJoint()
@@ -371,9 +371,7 @@ def createRig(*args):
 	hip.createControl(r = 25)
 	waist.createControl(r = 20)
 	chest.createControl(r = 20)
-	sternum.createControl(r = 0)
-
-	collarbones.createControl(r = 10)
+	collarbone.createControl(r = 10)
 
 	neck.createControl(r = 10)
 	head.createControl(r = 10, nr = 'z')
@@ -382,11 +380,11 @@ def createRig(*args):
 	l_eye.createControl(r = 2)
 	r_eye.createControl(r = 2)
 
-	l_clavicle.createControl()
+	l_clavicle.createControl(r = 5)
 	l_shoulder.createControl(r = 10, fk = True)
 	l_elbow.createControl(r = 10, fk = True)
 	l_wrist.createControl(r = 10, fk = True)
-	r_clavicle.createControl()
+	r_clavicle.createControl(r = 5)
 	r_shoulder.createControl(r = 10, fk = True)
 	r_elbow.createControl(r = 10, fk = True)
 	r_wrist.createControl(r = 10, fk = True)
@@ -470,15 +468,51 @@ def createRig(*args):
 	l_foot.createReverseControl(sj = 'l_ankle', ee = 'l_foot_toes', mj = 'l_foot_ball', bj = 'l_foot_heel')
 	r_foot.createReverseControl(sj = 'r_ankle', ee = 'r_foot_toes', mj = 'r_foot_ball', bj = 'r_foot_heel')
 	
+	editControlShape()
+	
 	#IK FK SYSTEMS
         
 	parentConstraint('hip_ctrl', 'l_leg_ik_fk', mo = True)
-	parentConstraint('collarbones_ctrl', 'l_arm_ik_fk', mo = True)
-	parent('l_clavicle_ctrl', 'collarbones_ctrl')
+
+	parent("l_clavicle_ctrl_offset", 'collarbone_ctrl')
+	parentConstraint('l_clavicle_ctrl', 'l_arm_ik_fk', mo = True)
+	#parentConstraint('collarbone_ctrl', 'l_arm_ik_fk', mo = True)
 
 	parentConstraint('hip_ctrl', 'r_leg_ik_fk', mo = True)
-	parentConstraint('collarbones_ctrl', 'r_arm_ik_fk', mo = True)
-	parent('r_clavicle_ctrl', 'collarbones_ctrl')
+
+	parent("r_clavicle_ctrl_offset", 'collarbone_ctrl')
+	parentConstraint('r_clavicle_ctrl', 'r_arm_ik_fk', mo = True)
+	#parentConstraint('collarbone_ctrl', 'r_arm_ik_fk', mo = True)
+
+	#lock and hide attributes
+
+	offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
+	offsetGroup = cmds.ls('*_offset')
+	ikfkToggle = cmds.ls('*ikfk_toggle_ctrl')
+	
+	for i in offsetGroup:
+		for j in offsetAttr:
+			cmds.setAttr(i + '.' + j, l = True, k = False, cb = False)
+
+	for i in ikfkToggle:
+		for j in offsetAttr:
+			cmds.setAttr(i + '.' + j, l = True, k = False, cb = False)
+
+	#colour overrides
+
+	all_ctrl = cmds.ls('*ctrl')
+	all_l_ctrl = cmds.ls('l_*ctrl')
+	all_r_ctrl = cmds.ls('r_*ctrl')
+
+	for i in all_ctrl:
+		cmds.setAttr(i + ".overrideEnabled", 1)
+		cmds.setAttr(i + ".overrideColor", 17)
+
+	for i in all_l_ctrl:
+		cmds.setAttr(i + ".overrideColor", 14)
+
+	for i in all_r_ctrl:
+		cmds.setAttr(i + ".overrideColor", 13)
 
 	print("Rig Created!")
 
@@ -486,6 +520,20 @@ def progressNum(max):
 	global prog
 	prog+=1
 	return str(int((prog/max)*100))
+
+def editControlShape():
+	#Collarbone
+	xform('collarbone_ctrlShape.cv[0:8]', s = (2, 1, 1), r = True)
+	xform('collarbone_ctrlShape.cv[1]', t = (0, -20, 0), r = True)
+	xform('collarbone_ctrlShape.cv[5]', t = (0, -20, 0), r = True)
+
+	#L_Clavicle
+	xform('l_clavicle_ctrlShape.cv[0:8]', s = (1, 1, 0.5), r = True)
+	xform('l_clavicle_ctrl.rotatePivot', t = xform('l_clavicle_guide', q = True, t = True, ws = True), ws = True)
+
+	#R_Clavicle
+	xform('r_clavicle_ctrlShape.cv[0:8]', s = (1, 1, 0.5), r = True)
+	xform('r_clavicle_ctrl.rotatePivot', t = xform('r_clavicle_guide', q = True, t = True, ws = True), ws = True)
 
 #ADD COMMANDS TO BUTTONS WHEN PRESSED
 guides_btn.setCommand(createGuides)
@@ -565,7 +613,7 @@ class Rig:
 		hide (ls ('*_fk', type = 'joint'))
 		hide (ls ('*_rev', type = 'joint'))
 
-		print("Creating Joints... (" + progressNum(242) + "%)")
+		print("Creating Joints... (" + progressNum(240) + "%)")
 
 		return self
 	
@@ -591,7 +639,7 @@ class Rig:
 			elif not ik:
 				pass
 		
-		print("Creating Joints... (" + progressNum(242) + "%)")
+		print("Creating Joints... (" + progressNum(240) + "%)")
 
 	def createControl(self, r = 2, nr = "Y", fk = False):
 		#Create circle
@@ -620,12 +668,20 @@ class Rig:
 			self.ctrl_offset = group(em = True, n = self.name + "_ctrl_offset")
 			parent(self.name + "_ctrl", self.name + "_ctrl_offset")
 
-		if(self.name == "collarbones"):
+		if(self.name == "collarbone"):
 			xform(self.ctrl_offset, t = xform("neck_guide", q = True, t = True, ws = True), ro = xform("neck", q = True, ro = True, ws = True))
 		elif(self.name == "neck"):
 			self.neck_pos = xform("neck_guide", q = True, t = True, ws = True)
 			self.head_pos = xform("head_guide", q = True, t = True, ws = True)
 			xform(self.ctrl_offset, t = ((self.neck_pos[0], (self.neck_pos[1] + self.head_pos[1])/2, self.neck_pos[2])), ro = xform(self.name, q = True, ro = True, ws = True))
+		elif(self.name.endswith("_clavicle")):
+			self.clavicle_pos = xform(self.name + "_guide", q = True, t = True, ws = True)
+			self.clavicle_rot = xform(self.name + "_guide", q = True, ro = True, ws = True)
+			if(self.name.startswith("l_")):
+				self.shoulder_pos = xform("l_shoulder_guide", q = True, t = True, ws = True)
+			elif(self.name.startswith("r_")):
+				self.shoulder_pos = xform("r_shoulder_guide", q = True, t = True, ws = True)
+			xform(self.name + "_ctrl_offset", t = ((self.clavicle_pos[0] + self.shoulder_pos[0])/2, ((self.clavicle_pos[1] + self.shoulder_pos[1])/2) + 5, (self.clavicle_pos[2] + self.shoulder_pos[2])/2), ro = self.clavicle_rot, ws = True)
 		elif(self.name == "jaw"):
 			xform(self.ctrl_offset, t = xform("chin_guide", q = True, t = True, ws = True), ro = xform("chin", q = True, ro = True, ws = True))
 			xform(self.name + "_ctrl.rotatePivot", t = xform("jaw_guide", q = True, t = True, ws = True), a = True, ws = True)
@@ -659,14 +715,14 @@ class Rig:
 		if fk:
 			parentConstraint(self.name + "_fk_ctrl", self.name + "_fk", mo = False)
 		elif not fk:
-			if(self.name == "collarbones"):
+			if(self.name == "collarbone" or self.name.endswith("_clavicle")):
 				pass
 			elif(self.name == "jaw"):
 				parentConstraint(self.name + "_ctrl", self.name, mo = True)
 			else:
 				parentConstraint(self.name + "_ctrl", self.name, mo = False)
 
-		#Lock and Hide Attributes
+		'''#Lock and Hide Attributes
 		offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
 		for i in offsetAttr:
 			if fk:
@@ -691,9 +747,9 @@ class Rig:
 			if fk:
 				setAttr(self.name + "_fk_ctrl.overrideColor", 17)
 			elif not fk:
-				setAttr(self.name + "_ctrl.overrideColor", 17)
+				setAttr(self.name + "_ctrl.overrideColor", 17)'''
 		
-		print("Creating Controllers... (" + progressNum(242) + "%)")
+		print("Creating Controllers... (" + progressNum(240) + "%)")
 
 	def createIKControl(self, sj, ee, mj, rev = False):
 		#Get start joint and end effector position and rotation
@@ -798,7 +854,7 @@ class Rig:
 		connectAttr(self.name + '_ikfk_switch.outputX', self.name + '_FK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
 	
-		#Lock and Hide Attributes
+		'''#Lock and Hide Attributes
 		offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
 		for i in offsetAttr:
 			setAttr(self.name + "_ik_ctrl_offset." + i, l = True, k = False, cb = False)
@@ -815,9 +871,9 @@ class Rig:
 			setAttr(self.name + "_ik_ctrl.overrideColor", 13)
 			setAttr(self.name + "_ikpole_ctrl.overrideColor", 13)
 			setAttr(self.name + "_ikpole_ctrl_connector.overrideColor", 13)
-			setAttr(self.name + "_ikfk_toggle_ctrl.overrideColor", 13)
+			setAttr(self.name + "_ikfk_toggle_ctrl.overrideColor", 13)'''
 
-		print("Creating Controllers... (" + progressNum(242) + "%)")
+		print("Creating IK Controls... (" + progressNum(240) + "%)")
 
 	def createReverseControl(self, sj, ee, mj, bj):
 		parent(sj + "_rev", self.parent + "_ik_ctrl")
@@ -888,18 +944,16 @@ class Rig:
 		connectAttr(self.name + '_roll_multi.outputY', mj + '_rev.rotateZ')
 		connectAttr(self.name + '_roll_multi.outputZ', ee + '_rev.rotateZ')
 
-		print("Creating Controllers... (" + progressNum(242) + "%)")
+		print("Creating Reverse Foot Controls... (" + progressNum(240) + "%)")
 
 # SPINE #
 hip = Rig("hip", t = (0, 106.85, 2.652))
 waist = Rig("waist", t = (0, 119.473, 5), p = "hip")
 chest = Rig("chest", t = (0, 131.713, 5), p = "waist")
-sternum = Rig("sternum", t = (0, 153.569, 1.886), p = "chest")
-
-collarbones = Rig("collarbones", p = "chest")
+collarbone = Rig("collarbone", t = (0, 153.569, 1.886), p = "chest")
 
 # HEAD #
-neck = Rig("neck", t = (0, 156.891, 1.886), p = "sternum")
+neck = Rig("neck", t = (0, 156.891, 1.886), p = "collarbone")
 head = Rig("head", t = (0, 170.281, 3.69), p = "neck")
 jaw = Rig("jaw", t = (0, 170.281, 7.175), p = "head")
 chin = Rig("chin", t = (0, 163.448, 15.213), p = "jaw")
@@ -907,11 +961,11 @@ l_eye = Rig("l_eye", t = (3.125, 175.471, 12.969), p = "head")
 r_eye = Rig("r_eye", t = (-3.125, 175.471, 12.969), p = "head")
 
 # ARMS #
-l_clavicle = Rig("l_clavicle", t = (3.107, 152.95, 4.807), p = "sternum")
+l_clavicle = Rig("l_clavicle", t = (3.107, 152.95, 4.807), p = "collarbone")
 l_shoulder = Rig("l_shoulder", t = (19, 150.912, 0), p = "l_clavicle")
 l_elbow = Rig("l_elbow", t = (31, 125, 0), p = "l_shoulder")
 l_wrist = Rig("l_wrist", t = (45, 103, 6), p = "l_elbow")
-r_clavicle = Rig("r_clavicle", t = (-3.107, 152.95, 4.807), p = "sternum")
+r_clavicle = Rig("r_clavicle", t = (-3.107, 152.95, 4.807), p = "collarbone")
 r_shoulder = Rig("r_shoulder", t = (-19, 150.912, 0), p = "r_clavicle")
 r_elbow = Rig("r_elbow", t = (-31, 125, 0), p = "r_shoulder")
 r_wrist = Rig("r_wrist", t = (-45, 103, 6), p = "r_elbow")
