@@ -185,6 +185,9 @@ def createRig(*args):
 	group("l_hand_ctrl", n = "l_hand_ctrl_offset")
 	group(n = "r_hand_ctrl", em = True)
 	group("r_hand_ctrl", n = "r_hand_ctrl_offset")
+
+	group(em = True, n = "ikpole_ctrl_connector_offset")
+	parent("ikpole_ctrl_connector_offset", "root_ctrl_offset")
 	
 	global prog
 	prog = 1
@@ -535,8 +538,9 @@ def createRig(*args):
 		setAttr(i + ".overrideColor", 13)
 
 	setAttr("grp_ctrl.overrideColor", 18)
+	setAttr("root_ctrl.overrideColor", 18)
 
-	delete(ch = True, all = True)
+	#delete(ch = True, all = True)
 
 	print("Rig Created!")
 
@@ -830,7 +834,8 @@ class Rig:
 		parent(self.name + "_ikpole_ctrl_clusterHandle", self.name + "_ikpole_ctrl")
 		setAttr(self.name + "_ikpole_ctrl_connector.overrideEnabled", 1)
 		setAttr(self.name + "_ikpole_ctrl_connector.overrideDisplayType", 2)
-		parent(self.name + "_ikpole_ctrl_connector", self.name + '_ikpole_ctrl')
+		parent(self.name + "_ikpole_ctrl_connector", 'ikpole_ctrl_connector_offset')
+
 		setAttr(self.name + "_ikpole_clusterHandle.visibility", 0)
 		setAttr(self.name + "_ikpole_ctrl_clusterHandle.visibility", 0)
 
