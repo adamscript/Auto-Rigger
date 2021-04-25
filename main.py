@@ -166,13 +166,20 @@ def createRig(*args):
 	root_ctrl.setNormalZ(0)
 	group('root_ctrl', n = "root_ctrl_offset")
 	parent('root_ctrl_offset', 'rig')
+	
+	grp_ctrl = MakeNurbCircle(r = 30, n = "grp_ctrl")
+	grp_ctrl.setNormalY(1)
+	grp_ctrl.setNormalZ(0)
+	group('grp_ctrl', n = "grp_ctrl_offset")
+	xform('grp_ctrl_offset', t = xform("hip_guide", q = True, t = True, ws = True))
+	parent('grp_ctrl_offset', 'root_ctrl')
 
 	spine_ctrl = MakeNurbCircle(r = 25, n = "spine_ctrl")
 	spine_ctrl.setNormalY(1)
 	spine_ctrl.setNormalZ(0)
 	group('spine_ctrl', n = "spine_ctrl_offset")
 	xform('spine_ctrl_offset', t = xform("hip_guide", q = True, t = True, ws = True))
-	parent('spine_ctrl_offset', 'root_ctrl')
+	parent('spine_ctrl_offset', 'grp_ctrl')
 
 	group(n = "l_hand_ctrl", em = True)
 	group("l_hand_ctrl", n = "l_hand_ctrl_offset")
@@ -377,7 +384,7 @@ def createRig(*args):
 	group('r_shoulder_ik', 'r_shoulder_fk', n = 'r_arm_ik_fk')
 
 	group('l_leg_ik_fk', 'l_arm_ik_fk', 'r_leg_ik_fk', 'r_arm_ik_fk', n = 'ik_fk_joints')
-	parent('ik_fk_joints', 'rig')
+	parent('ik_fk_joints', 'root_ctrl')
 
 	# CONTROLLERS #
 	
@@ -527,7 +534,9 @@ def createRig(*args):
 	for i in all_r_ctrl:
 		setAttr(i + ".overrideColor", 13)
 
-	setAttr("root_ctrl.overrideColor", 18)
+	setAttr("grp_ctrl.overrideColor", 18)
+
+	delete(ch = True, all = True)
 
 	print("Rig Created!")
 
@@ -550,7 +559,7 @@ def editControlShape():
 
 	parent('l_eye_ctrl_offset', 'eyesLookAt_ctrl')
 	parent('r_eye_ctrl_offset', 'eyesLookAt_ctrl')
-	parent('eyesLookAt_ctrl_offset', 'root_ctrl')
+	parent('eyesLookAt_ctrl_offset', 'grp_ctrl')
 	
 	#Neck
 	xform('neck_ctrl.rotatePivot', t = xform('neck_guide', q = True, t = True, ws = True), ws = True)
@@ -633,7 +642,7 @@ class Rig:
 		elif(self.parent != ""):
 			self.joint.setParent(self.parent)
 		else:
-			self.joint.setParent("rig")
+			self.joint.setParent("root_ctrl")
 
 		if ik:
 			self.jointIK = Joint(n = self.name + "_ik", radius = 1, p = self.joint_pos)
@@ -743,22 +752,22 @@ class Rig:
 		elif not fk:
 			if (self.parent.endswith("_wrist")):
 				if(self.name.startswith("l_")):
-					parent('l_hand_ctrl_offset', 'root_ctrl')
+					parent('l_hand_ctrl_offset', 'grp_ctrl')
 					parent(self.name + "_ctrl_offset", "l_hand_ctrl")
 					parentConstraint(self.parent, 'l_hand_ctrl', mo = True)
 				elif(self.name.startswith("r_")):
-					parent('r_hand_ctrl_offset', 'root_ctrl')
+					parent('r_hand_ctrl_offset', 'grp_ctrl')
 					parent(self.name + "_ctrl_offset", "r_hand_ctrl")
 					parentConstraint(self.parent, 'r_hand_ctrl', mo = True)
 			elif (self.parent.endswith("_ankle")):
-				parent(self.name + "_ctrl_offset", "root_ctrl")
+				parent(self.name + "_ctrl_offset", "grp_ctrl")
 				parentConstraint(self.parent, self.name + "_ctrl_offset", mo = True)
 			elif (self.name == "hip" or self.name == "waist"):
 				parent(self.name + "_ctrl_offset", "spine_ctrl")
 			elif (self.parent != ""):
 				parent(self.name + "_ctrl_offset", self.parent + "_ctrl")
 			else:
-				parent(self.name + "_ctrl_offset", "root_ctrl")
+				parent(self.name + "_ctrl_offset", "grp_ctrl")
 
 		#Parent Constraint
 		if fk:
@@ -787,7 +796,7 @@ class Rig:
 		self.IKctrl.setNormalZ(0)
 		parent(self.name + "_ik_ctrl", self.name + "_ik_ctrl_offset")
 		xform(self.name + "_ik_ctrl_offset", t = self.ee_pos, ro = self.ee_rot, ws = True)
-		parent(self.name + "_ik_ctrl_offset", "root_ctrl")
+		parent(self.name + "_ik_ctrl_offset", "grp_ctrl")
 		orientConstraint(self.name + "_ik_ctrl", ee + "_ik")
 		#Create IK Handle
 		self.ikhandle = ikHandle(n = self.name + "_ikHandle", sj = sj + "_ik", ee = ee + "_ik")
@@ -810,7 +819,7 @@ class Rig:
 		elif(self.name == "l_leg" or self.name == "r_leg"):
 			move(0, 0, 30, self.name + "_ikpole_ctrl_offset", ls = True, r = True)
 		makeIdentity(self.name + "_ikpole_ctrl", a = True, t = True)
-		parent(self.name + "_ikpole_ctrl_offset", 'root_ctrl')
+		parent(self.name + "_ikpole_ctrl_offset", 'grp_ctrl')
 
 		poleVectorConstraint(self.name + "_ikpole_ctrl", self.name + "_ikHandle")
 
@@ -855,7 +864,7 @@ class Rig:
 		parent(self.name + "_ikfk_toggle_ctrl", self.name + "_ikfk_toggle_ctrl_offset")
 		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (xform(ee, q = True, t = True, ws = True)))
 		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (0, 10, -20), r = True)
-		parent(self.name + "_ikfk_toggle_ctrl_offset", 'root_ctrl')
+		parent(self.name + "_ikfk_toggle_ctrl_offset", 'grp_ctrl')
 		pointConstraint(self.parent, self.name + "_ikfk_toggle_ctrl_offset", mo = True)
 		#Add ik fk toggle attribute
 		if(self.name == "l_arm" or self.name == "r_arm"):
