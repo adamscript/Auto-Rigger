@@ -540,7 +540,17 @@ def createRig(*args):
 	setAttr("grp_ctrl.overrideColor", 18)
 	setAttr("root_ctrl.overrideColor", 18)
 
-	#delete(ch = True, all = True)
+	all_joint = ls(type = 'joint')
+
+	for i in all_joint:
+		setAttr(i + ".overrideEnabled", 1)
+		setAttr(i + ".overrideColor", 0)
+
+	#Delete All Non Deformer History
+	bakePartialHistory(all = True)
+
+	#Hide Guides
+	setAttr('guides.visibility', 0)
 
 	print("Rig Created!")
 
