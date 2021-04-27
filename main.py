@@ -1,7 +1,5 @@
 from pymel.core import *
 from pymel.core.nodetypes import *
-import pymel.core as pm
-#from rig.py import *
 
 win = window(title="Awan's Auto Rigger")
 layout = columnLayout()
@@ -137,8 +135,6 @@ def displayAxes(*args):
 		allJoints = ls(type = 'joint')
 		toggle(allJoints, la = True)
 	else:
-		print(selectedJoints)
-
 		toggle(selectedJoints, la = True)
 		print("Axes Displayed!")
 
@@ -683,7 +679,7 @@ class Rig:
 		hide (ls ('*_fk', type = 'joint'))
 		hide (ls ('*_rev', type = 'joint'))
 
-		print("Creating Joints... (" + progressNum(240) + "%)")
+		print("Creating Joints... (" + progressNum(240) + "%)"),
 
 		return self
 	
@@ -709,7 +705,7 @@ class Rig:
 			elif not ik:
 				pass
 		
-		print("Creating Joints... (" + progressNum(240) + "%)")
+		print("Creating Joints... (" + progressNum(240) + "%)"),
 
 	def createControl(self, r = 2, nr = "Y", fk = False):
 		#Create circle
@@ -796,7 +792,7 @@ class Rig:
 			else:
 				parentConstraint(self.name + "_ctrl", self.name, mo = False)
 		
-		print("Creating Controllers... (" + progressNum(240) + "%)")
+		print("Creating Controllers... (" + progressNum(240) + "%)"),
 
 	def createIKControl(self, sj, ee, mj, rev = False):
 		#Get start joint and end effector position and rotation
@@ -902,7 +898,7 @@ class Rig:
 		connectAttr(self.name + '_ikfk_switch.outputX', self.name + '_FK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
 
-		print("Creating IK Controls... (" + progressNum(240) + "%)")
+		print("Creating IK Controls... (" + progressNum(240) + "%)"),
 
 	def createReverseControl(self, sj, ee, mj, bj):
 		parent(sj + "_rev", self.parent + "_ik_ctrl")
@@ -973,7 +969,7 @@ class Rig:
 		connectAttr(self.name + '_roll_multi.outputY', mj + '_rev.rotateZ')
 		connectAttr(self.name + '_roll_multi.outputZ', ee + '_rev.rotateZ')
 
-		print("Creating Reverse Foot Controls... (" + progressNum(240) + "%)")
+		print("Creating Reverse Foot Controls... (" + progressNum(240) + "%)"),
 
 # SPINE #
 hip = Rig("hip", t = (0, 106.85, 2.652))
