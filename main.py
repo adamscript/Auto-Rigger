@@ -1,5 +1,6 @@
 from pymel.core import *
 from pymel.core.nodetypes import *
+import maya.OpenMaya as om
 
 win = window(title="Awan's Auto Rigger")
 layout = columnLayout()
@@ -7,11 +8,14 @@ layout = columnLayout()
 #BUTTONS
 
 guides_btn = button(l = "Create Guides", w = 200, p = layout)
+separator()
 mirrorguides_btn = button(l = "Mirror Guides", w = 200, p = layout)
 deleteguides_btn = button(l = "Delete Guides", w = 200, p = layout)
 separator()
 displayaxes_btn = button(l = "Display Local Rotation Axes", w = 200, p = layout)
 separator()
+addkey_btn = button(l = "Key", w = 200, p = layout)
+addkeyall_btn = button(l = "Key All", w = 200, p = layout)
 resetpose_btn = button(l = "Reset Pose", w = 200, p = layout)
 separator()
 humaniserig_btn = button(l = "Humanise Rig", w = 200, p = layout)
@@ -118,7 +122,40 @@ def createGuides(*args):
 	print("Guides Created!")
 
 def mirrorGuides(*args):
-	print("Guides Mirrored!")
+	selectedGuide = ls(sl = True, l = True)
+
+	if not selectedGuide:
+		om.MGlobal.displayError	("No guide selected!")
+	else:
+		for x in selectedGuide:
+			if (x.startswith("l_")):
+				#print(x.partition("l_")[2])
+				mirrorpos = xform(x, q = True, t = True, ws = True)
+				print(mirrorpos)
+				xform("r_" + x.partition("l_")[2], t = (mirrorpos[0]*-1, mirrorpos[1], mirrorpos[2]), ws = True)
+				print("r_" + x.partition("l_")[2])
+				selectedGuideChildren = listRelatives(x, typ = "locator", ad = True)
+
+				for i in selectedGuideChildren:
+					#print(mirrorchildpos)
+					mirrorchildpos = xform(i.partition("Shape")[0], q = True, t = True, ws = True)
+					print(i.partition("Shape")[0])
+					xform("r_" + (i.partition("Shape")[0]).partition("l_")[2], t = (mirrorchildpos[0]*-1, mirrorchildpos[1], mirrorchildpos[2]), ws = True)
+			elif (x.startswith("r_")):
+				#print(x.partition("r_")[2])
+				mirrorpos = xform(x, q = True, t = True, ws = True)
+				print(mirrorpos)
+				xform("l_" + x.partition("r_")[2], t = (mirrorpos[0]*-1, mirrorpos[1], mirrorpos[2]), ws = True)
+				print("l_" + x.partition("r_")[2])
+				selectedGuideChildren = listRelatives(x, typ = "locator", ad = True)
+
+				for i in selectedGuideChildren:
+					mirrorchildpos = xform(i.partition("Shape")[0], q = True, t = True, ws = True)
+					print(i.partition("Shape")[0])
+					xform("l_" + (i.partition("Shape")[0]).partition("r_")[2], t = (mirrorchildpos[0]*-1, mirrorchildpos[1], mirrorchildpos[2]), ws = True)
+			else:
+				om.MGlobal.displayWarning("Selected guide has no symmetry")
+		print("Guides Mirrored!")
 
 def deleteGuides(*args):
 	allGuides = ls("guides")
@@ -133,10 +170,16 @@ def displayAxes(*args):
 
 	if not selectedJoints:
 		allJoints = ls(type = 'joint')
-		toggle(allJoints, la = True)
+		switch(allJoints, la = True)
 	else:
-		toggle(selectedJoints, la = True)
+		switch(selectedJoints, la = True)
 		print("Axes Displayed!")
+
+def addKey(*args):
+	print("Keyframe Added!")
+
+def addKeyAll(*args):
+	print("Keyframe Added to All!")
 
 def resetPose(*args):
 	print("Pose Resetted!")
@@ -507,13 +550,13 @@ def createRig(*args):
 
 	offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
 	offsetGroup = ls('*_offset')
-	ikfkToggle = ls('*ikfk_toggle_ctrl')
+	ikfkswitch = ls('*ikfk_switch_ctrl')
 	
 	for i in offsetGroup:
 		for j in offsetAttr:
 			setAttr(i + '.' + j, l = True, k = False, cb = False)
 
-	for i in ikfkToggle:
+	for i in ikfkswitch:
 		for j in offsetAttr:
 			setAttr(i + '.' + j, l = True, k = False, cb = False)
 
@@ -606,6 +649,8 @@ guides_btn.setCommand(createGuides)
 mirrorguides_btn.setCommand(mirrorGuides)
 deleteguides_btn.setCommand(deleteGuides)
 displayaxes_btn.setCommand(displayAxes)
+addkey_btn.setCommand(addKey)
+addkeyall_btn.setCommand(addKeyAll)
 resetpose_btn.setCommand(resetPose)
 humaniserig_btn.setCommand(humaniseRig)
 deleterig_btn.setCommand(deleteRig)
@@ -845,20 +890,20 @@ class Rig:
 		setAttr(self.name + "_ikpole_clusterHandle.visibility", 0)
 		setAttr(self.name + "_ikpole_ctrl_clusterHandle.visibility", 0)
 
-		#IK FK Toggle
-		#Create IK FK Toggle
-		self.iktoggle = MakeNurbPlane(w = 10, d = 1, ax = (0, 0, 1), n = self.name + "_ikfk_toggle_ctrl")
-		rename('makeNurbPlane1', self.name + "_ikfk_toggle_ctrlInput")
-		setAttr (self.name + "_ikfk_toggle_ctrlInput.width", 10)
-		setAttr (self.name + "_ikfk_toggle_ctrl.overrideEnabled", 1)
-		setAttr(self.name + '_ikfk_toggle_ctrl.overrideShading', 0)
-		setAttr(self.name + '_ikfk_toggle_ctrl.overrideTexturing', 0)
-		setAttr(self.name + '_ikfk_toggle_ctrl.overridePlayback', 0)
-		#Create IK FK Toggle Text
+		#IK FK switch
+		#Create IK FK switch
+		self.ikswitch = MakeNurbPlane(w = 10, d = 1, ax = (0, 0, 1), n = self.name + "_ikfk_switch_ctrl")
+		rename('makeNurbPlane1', self.name + "_ikfk_switch_ctrlInput")
+		setAttr (self.name + "_ikfk_switch_ctrlInput.width", 10)
+		setAttr (self.name + "_ikfk_switch_ctrl.overrideEnabled", 1)
+		setAttr(self.name + '_ikfk_switch_ctrl.overrideShading', 0)
+		setAttr(self.name + '_ikfk_switch_ctrl.overrideTexturing', 0)
+		setAttr(self.name + '_ikfk_switch_ctrl.overridePlayback', 0)
+		#Create IK FK switch Text
 		self.iktext = textCurves(text = "IK", f = "Lucida Sans Unicode", n = self.name + "_IK_lttr")
 		self.fktext = textCurves(text = "FK", f = "Lucida Sans Unicode", n = self.name + "_FK_lttr")
-		xform(self.name + "_IK_lttrShape", t = (xform(self.name + "_ikfk_toggle_ctrl", q = True, t = True, ws = True)), ws = True, cp = True)
-		xform(self.name + "_FK_lttrShape", t = (xform(self.name + "_ikfk_toggle_ctrl", q = True, t = True, ws = True)), ws = True, cp = True)
+		xform(self.name + "_IK_lttrShape", t = (xform(self.name + "_ikfk_switch_ctrl", q = True, t = True, ws = True)), ws = True, cp = True)
+		xform(self.name + "_FK_lttrShape", t = (xform(self.name + "_ikfk_switch_ctrl", q = True, t = True, ws = True)), ws = True, cp = True)
 		xform(self.name + "_IK_lttrShape", s = (7, 7, 7))
 		xform(self.name + "_FK_lttrShape", s = (7, 7, 7))
 		setAttr(self.name + "_IK_lttrShape.overrideEnabled", 1)
@@ -866,35 +911,35 @@ class Rig:
 		setAttr(self.name + "_IK_lttrShape.overrideDisplayType", 2)
 		setAttr(self.name + "_FK_lttrShape.overrideDisplayType", 2)
 		
-		parent(self.name + "_IK_lttrShape", self.name + "_ikfk_toggle_ctrl")
-		parent(self.name + "_FK_lttrShape", self.name + "_ikfk_toggle_ctrl")
+		parent(self.name + "_IK_lttrShape", self.name + "_ikfk_switch_ctrl")
+		parent(self.name + "_FK_lttrShape", self.name + "_ikfk_switch_ctrl")
 		
-		#Create ikfk toggle offset
-		self.iktoggle_offset = group(n = self.name + "_ikfk_toggle_ctrl_offset")
-		parent(self.name + "_ikfk_toggle_ctrl_offset", w = True)
-		parent(self.name + "_ikfk_toggle_ctrl", self.name + "_ikfk_toggle_ctrl_offset")
-		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (xform(ee, q = True, t = True, ws = True)))
-		xform(self.name + "_ikfk_toggle_ctrl_offset", t = (0, 10, -20), r = True)
-		parent(self.name + "_ikfk_toggle_ctrl_offset", 'grp_ctrl')
-		pointConstraint(self.parent, self.name + "_ikfk_toggle_ctrl_offset", mo = True)
-		#Add ik fk toggle attribute
+		#Create ikfk switch offset
+		self.ikswitch_offset = group(n = self.name + "_ikfk_switch_ctrl_offset")
+		parent(self.name + "_ikfk_switch_ctrl_offset", w = True)
+		parent(self.name + "_ikfk_switch_ctrl", self.name + "_ikfk_switch_ctrl_offset")
+		xform(self.name + "_ikfk_switch_ctrl_offset", t = (xform(ee, q = True, t = True, ws = True)))
+		xform(self.name + "_ikfk_switch_ctrl_offset", t = (0, 10, -20), r = True)
+		parent(self.name + "_ikfk_switch_ctrl_offset", 'grp_ctrl')
+		pointConstraint(self.parent, self.name + "_ikfk_switch_ctrl_offset", mo = True)
+		#Add ik fk switch attribute
 		if(self.name == "l_arm" or self.name == "r_arm"):
-			addAttr(self.name + "_ikfk_toggle_ctrl", ln = "IK_FK_Toggle", k = True, min = 0, max = 1, dv = 0)
+			addAttr(self.name + "_ikfk_switch_ctrl", ln = "IK_FK_switch", k = True, min = 0, max = 1, dv = 0)
 		elif(self.name == "l_leg" or self.name == "r_leg"):
-			addAttr(self.name + "_ikfk_toggle_ctrl", ln = "IK_FK_Toggle", k = True, min = 0, max = 1, dv = 1)
+			addAttr(self.name + "_ikfk_switch_ctrl", ln = "IK_FK_switch", k = True, min = 0, max = 1, dv = 1)
 		#Connections
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', sj + '_parentConstraint1.' + sj + '_ikW0', f = True)
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', mj + '_parentConstraint1.' + mj + '_ikW0', f = True)
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', ee + '_parentConstraint1.' + ee + '_ikW0', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', sj + '_parentConstraint1.' + sj + '_ikW0', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', mj + '_parentConstraint1.' + mj + '_ikW0', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', ee + '_parentConstraint1.' + ee + '_ikW0', f = True)
 		shadingNode('reverse', n = self.name + '_ikfk_switch', au = True)
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ikfk_switch.inputX', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', self.name + '_ikfk_switch.inputX', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_parentConstraint1.' + sj + '_fkW1', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', mj + '_parentConstraint1.' + mj + '_fkW1', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', ee + '_parentConstraint1.' + ee + '_fkW1', f = True)
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ikpole_ctrl_offset.visibility', f = True)
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ik_ctrl_offset.visibility', f = True)
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_ikpole_ctrl_connector.visibility', f = True)
-		connectAttr(self.name + '_ikfk_toggle_ctrl.IK_FK_Toggle', self.name + '_IK_lttrShape.visibility', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', self.name + '_ikpole_ctrl_offset.visibility', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', self.name + '_ik_ctrl_offset.visibility', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', self.name + '_ikpole_ctrl_connector.visibility', f = True)
+		connectAttr(self.name + '_ikfk_switch_ctrl.IK_FK_switch', self.name + '_IK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', self.name + '_FK_lttrShape.visibility', f = True)
 		connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
 
@@ -922,22 +967,22 @@ class Rig:
 		xform(self.name + '_bank_inner.rotatePivot', t = inner_pos, ws = True)
 		xform(self.name + '_bank_outer.rotatePivot', t = outer_pos, ws = True)
 
-		select(self.parent + '_ikfk_toggle_ctrl')
+		select(self.parent + '_ikfk_switch_ctrl')
 		addAttr(ln = "Heel_Twist", k = True)
 		addAttr(ln = "Toes_Twist", k = True)
 		addAttr(ln = "Toe_Tap", k = True)
 		addAttr(ln = "Bank", k = True)
 		addAttr(ln = "Roll", k = True, min = -30, max = 30, dv = 0)
 
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Heel_Twist', bj + '_rev.rotateY')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Toes_Twist', ee + '_rev.rotateY')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Toe_Tap', ee + '_tap.rotateX')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Heel_Twist', bj + '_rev.rotateY')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Toes_Twist', ee + '_rev.rotateY')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Toe_Tap', ee + '_tap.rotateX')
 
 		shadingNode('condition', n = self.name + '_bank_condition', au = True)
 		setAttr(self.name + '_bank_condition.operation', 2)
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Bank', self.name + '_bank_condition.colorIfFalseG')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Bank', self.name + '_bank_condition.colorIfTrueR')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Bank', self.name + '_bank_condition.firstTerm')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Bank', self.name + '_bank_condition.colorIfFalseG')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Bank', self.name + '_bank_condition.colorIfTrueR')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Bank', self.name + '_bank_condition.firstTerm')
 		connectAttr(self.name + '_bank_condition.outColorR', self.name + '_bank_inner.rotateZ')
 		connectAttr(self.name + '_bank_condition.outColorG', self.name + '_bank_outer.rotateZ')
 
@@ -955,12 +1000,12 @@ class Rig:
 		setAttr(self.name + '_roll_multi.input2Z', 1)
 		setAttr(self.name + '_roll_pma.operation', 2)
 		setAttr(self.name + '_roll_pma.input1D[1]', 10)
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', bj + '_roll_condition.colorIfTrueR')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', bj + '_roll_condition.firstTerm')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', mj + '_roll_condition.colorIfTrueR')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', mj + '_roll_condition.firstTerm')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', self.name + '_roll_pma.input1D[0]')
-		connectAttr(self.parent + '_ikfk_toggle_ctrl.Roll', ee + '_roll_condition.firstTerm')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Roll', bj + '_roll_condition.colorIfTrueR')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Roll', bj + '_roll_condition.firstTerm')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Roll', mj + '_roll_condition.colorIfTrueR')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Roll', mj + '_roll_condition.firstTerm')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Roll', self.name + '_roll_pma.input1D[0]')
+		connectAttr(self.parent + '_ikfk_switch_ctrl.Roll', ee + '_roll_condition.firstTerm')
 		connectAttr(self.name + '_roll_pma.output1D', ee + '_roll_condition.colorIfTrueR')
 		connectAttr(bj + '_roll_condition.outColorR', self.name + '_roll_multi.input1X')
 		connectAttr(mj + '_roll_condition.outColorR', self.name + '_roll_multi.input1Y')
