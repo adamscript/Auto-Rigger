@@ -17,9 +17,13 @@ separator()
 addkey_btn = button(l = "Key", w = 200, p = layout)
 addkeyall_btn = button(l = "Key All", w = 200, p = layout)
 resetpose_btn = button(l = "Reset Pose", w = 200, p = layout)
+deselectall_btn = button(l = "Deselect All", w = 200, p = layout)
 separator()
-humaniserig_btn = button(l = "Humanise Rig", w = 200, p = layout)
 deleterig_btn = button(l = "Delete Rig", w = 200, p = layout)
+separator()
+charname_txtfield = textField(pht = "Character Name...", w = 200, p = layout)
+separator()
+createpickergui_chkbox = checkBox(l = "Create Picker GUI")
 separator()
 autorig_btn = button(l = "Awto Rig!", w = 200, h = 150, p = layout)
 
@@ -60,45 +64,45 @@ def createGuides(*args):
 	
 	l_finger_index_metacarpal.createGuide()
 	l_finger_index_proximal.createGuide()
-	l_finger_index_middle.createGuide()
+	l_finger_index_middlep.createGuide()
 	l_finger_index_distal.createGuide()
 	l_finger_index_tip.createGuide()
 	r_finger_index_metacarpal.createGuide()
 	r_finger_index_proximal.createGuide()
-	r_finger_index_middle.createGuide()
+	r_finger_index_middlep.createGuide()
 	r_finger_index_distal.createGuide()
 	r_finger_index_tip.createGuide()
 	
-	l_finger_middle_metacarpal.createGuide()
-	l_finger_middle_proximal.createGuide()
-	l_finger_middle_middle.createGuide()
-	l_finger_middle_distal.createGuide()
-	l_finger_middle_tip.createGuide()
-	r_finger_middle_metacarpal.createGuide()
-	r_finger_middle_proximal.createGuide()
-	r_finger_middle_middle.createGuide()
-	r_finger_middle_distal.createGuide()
-	r_finger_middle_tip.createGuide()
+	l_finger_middlef_metacarpal.createGuide()
+	l_finger_middlef_proximal.createGuide()
+	l_finger_middlef_middlep.createGuide()
+	l_finger_middlef_distal.createGuide()
+	l_finger_middlef_tip.createGuide()
+	r_finger_middlef_metacarpal.createGuide()
+	r_finger_middlef_proximal.createGuide()
+	r_finger_middlef_middlep.createGuide()
+	r_finger_middlef_distal.createGuide()
+	r_finger_middlef_tip.createGuide()
 	
 	l_finger_ring_metacarpal.createGuide()
 	l_finger_ring_proximal.createGuide()
-	l_finger_ring_middle.createGuide()
+	l_finger_ring_middlep.createGuide()
 	l_finger_ring_distal.createGuide()
 	l_finger_ring_tip.createGuide()
 	r_finger_ring_metacarpal.createGuide()
 	r_finger_ring_proximal.createGuide()
-	r_finger_ring_middle.createGuide()
+	r_finger_ring_middlep.createGuide()
 	r_finger_ring_distal.createGuide()
 	r_finger_ring_tip.createGuide()
 	
 	l_finger_pinky_metacarpal.createGuide()
 	l_finger_pinky_proximal.createGuide()
-	l_finger_pinky_middle.createGuide()
+	l_finger_pinky_middlep.createGuide()
 	l_finger_pinky_distal.createGuide()
 	l_finger_pinky_tip.createGuide()
 	r_finger_pinky_metacarpal.createGuide()
 	r_finger_pinky_proximal.createGuide()
-	r_finger_pinky_middle.createGuide()
+	r_finger_pinky_middlep.createGuide()
 	r_finger_pinky_distal.createGuide()
 	r_finger_pinky_tip.createGuide()
 
@@ -181,6 +185,9 @@ def addKey(*args):
 def addKeyAll(*args):
 	print("Keyframe Added to All!")
 
+def deselectAll(*args):
+	print("All Controls Deselected!")
+
 def resetPose(*args):
 	print("Pose Resetted!")
 
@@ -188,7 +195,7 @@ def humaniseRig(*args):
 	print("Rig Humanised!")
 
 def deleteRig(*args):
-	allRig = ls("rig")
+	allRig = ls(charnamevalue + ':rig')
 	delete(allRig)
 	mel.eval('MLdeleteUnused;')
 	global prog
@@ -196,15 +203,38 @@ def deleteRig(*args):
 
 	print("Rig Deleted!")
 
+def createPickerGUI():
+	picker_cam = Camera(n = "picker_cam")
+	#picker_cam.rename("picker_cam")
+	picker_cam.setOrtho(orthoState = True)
+	bb = xform(charmodel, q = True, bb = True, ws = True)
+	viewFit("picker_cam1")
+	setAttr('picker_camShape1.orthographicWidth', (bb[4]*105)/100)
+	
+	#workspace = workspace(q = True, rd = True)
+	#pb = playblast(st = 1, et = 1, fmt = 'image', f = workspace + "testpb",  fp = 0, p = 10, c = 'jpg', qlt = 100, w = 450 * 10, h = 480 * 10, orn = False, v = False)
+
+	group(em = True, n = charnamevalue + "_guiData")
+	parent(charnamevalue + "_guiData", charnamevalue + ':rig')
+
 def createRig(*args):
-	group(n = "rig")
-	parent('rig', w = True)
+	global charmodel
+	charmodel = ls(sl = True)
+	
+	global charnamevalue
+	charnamevalue = textField(charname_txtfield, q = True, tx = True)
+	namespace(add = charnamevalue)
+	
+	group(n = charnamevalue + ':rig', em = 	True)
+	parent(charnamevalue + ':rig', w = True)
+
+	createPickerGUI()
 
 	root_ctrl = MakeNurbCircle(r = 50, n = "root_ctrl")
 	root_ctrl.setNormalY(1)
 	root_ctrl.setNormalZ(0)
 	group('root_ctrl', n = "root_ctrl_offset")
-	parent('root_ctrl_offset', 'rig')
+	parent('root_ctrl_offset', charnamevalue + ':rig')
 	
 	grp_ctrl = MakeNurbCircle(r = 30, n = "grp_ctrl")
 	grp_ctrl.setNormalY(1)
@@ -266,45 +296,45 @@ def createRig(*args):
 	
 	l_finger_index_metacarpal.createJoint()
 	l_finger_index_proximal.createJoint()
-	l_finger_index_middle.createJoint()
+	l_finger_index_middlep.createJoint()
 	l_finger_index_distal.createJoint()
 	l_finger_index_tip.createJoint()
 	r_finger_index_metacarpal.createJoint()
 	r_finger_index_proximal.createJoint()
-	r_finger_index_middle.createJoint()
+	r_finger_index_middlep.createJoint()
 	r_finger_index_distal.createJoint()
 	r_finger_index_tip.createJoint()
 	
-	l_finger_middle_metacarpal.createJoint()
-	l_finger_middle_proximal.createJoint()
-	l_finger_middle_middle.createJoint()
-	l_finger_middle_distal.createJoint()
-	l_finger_middle_tip.createJoint()
-	r_finger_middle_metacarpal.createJoint()
-	r_finger_middle_proximal.createJoint()
-	r_finger_middle_middle.createJoint()
-	r_finger_middle_distal.createJoint()
-	r_finger_middle_tip.createJoint()
+	l_finger_middlef_metacarpal.createJoint()
+	l_finger_middlef_proximal.createJoint()
+	l_finger_middlef_middlep.createJoint()
+	l_finger_middlef_distal.createJoint()
+	l_finger_middlef_tip.createJoint()
+	r_finger_middlef_metacarpal.createJoint()
+	r_finger_middlef_proximal.createJoint()
+	r_finger_middlef_middlep.createJoint()
+	r_finger_middlef_distal.createJoint()
+	r_finger_middlef_tip.createJoint()
 	
 	l_finger_ring_metacarpal.createJoint()
 	l_finger_ring_proximal.createJoint()
-	l_finger_ring_middle.createJoint()
+	l_finger_ring_middlep.createJoint()
 	l_finger_ring_distal.createJoint()
 	l_finger_ring_tip.createJoint()
 	r_finger_ring_metacarpal.createJoint()
 	r_finger_ring_proximal.createJoint()
-	r_finger_ring_middle.createJoint()
+	r_finger_ring_middlep.createJoint()
 	r_finger_ring_distal.createJoint()
 	r_finger_ring_tip.createJoint()
 	
 	l_finger_pinky_metacarpal.createJoint()
 	l_finger_pinky_proximal.createJoint()
-	l_finger_pinky_middle.createJoint()
+	l_finger_pinky_middlep.createJoint()
 	l_finger_pinky_distal.createJoint()
 	l_finger_pinky_tip.createJoint()
 	r_finger_pinky_metacarpal.createJoint()
 	r_finger_pinky_proximal.createJoint()
-	r_finger_pinky_middle.createJoint()
+	r_finger_pinky_middlep.createJoint()
 	r_finger_pinky_distal.createJoint()
 	r_finger_pinky_tip.createJoint()
 
@@ -358,45 +388,45 @@ def createRig(*args):
 	
 	l_finger_index_metacarpal.orientJoint()
 	l_finger_index_proximal.orientJoint()
-	l_finger_index_middle.orientJoint()
+	l_finger_index_middlep.orientJoint()
 	l_finger_index_distal.orientJoint()
 	l_finger_index_tip.orientJoint(oj = False)
 	r_finger_index_metacarpal.orientJoint()
 	r_finger_index_proximal.orientJoint()
-	r_finger_index_middle.orientJoint()
+	r_finger_index_middlep.orientJoint()
 	r_finger_index_distal.orientJoint()
 	r_finger_index_tip.orientJoint(oj = False)
 	
-	l_finger_middle_metacarpal.orientJoint()
-	l_finger_middle_proximal.orientJoint()
-	l_finger_middle_middle.orientJoint()
-	l_finger_middle_distal.orientJoint()
-	l_finger_middle_tip.orientJoint(oj = False)
-	r_finger_middle_metacarpal.orientJoint()
-	r_finger_middle_proximal.orientJoint()
-	r_finger_middle_middle.orientJoint()
-	r_finger_middle_distal.orientJoint()
-	r_finger_middle_tip.orientJoint(oj = False)
+	l_finger_middlef_metacarpal.orientJoint()
+	l_finger_middlef_proximal.orientJoint()
+	l_finger_middlef_middlep.orientJoint()
+	l_finger_middlef_distal.orientJoint()
+	l_finger_middlef_tip.orientJoint(oj = False)
+	r_finger_middlef_metacarpal.orientJoint()
+	r_finger_middlef_proximal.orientJoint()
+	r_finger_middlef_middlep.orientJoint()
+	r_finger_middlef_distal.orientJoint()
+	r_finger_middlef_tip.orientJoint(oj = False)
 	
 	l_finger_ring_metacarpal.orientJoint()
 	l_finger_ring_proximal.orientJoint()
-	l_finger_ring_middle.orientJoint()
+	l_finger_ring_middlep.orientJoint()
 	l_finger_ring_distal.orientJoint()
 	l_finger_ring_tip.orientJoint(oj = False)
 	r_finger_ring_metacarpal.orientJoint()
 	r_finger_ring_proximal.orientJoint()
-	r_finger_ring_middle.orientJoint()
+	r_finger_ring_middlep.orientJoint()
 	r_finger_ring_distal.orientJoint()
 	r_finger_ring_tip.orientJoint(oj = False)
 	
 	l_finger_pinky_metacarpal.orientJoint()
 	l_finger_pinky_proximal.orientJoint()
-	l_finger_pinky_middle.orientJoint()
+	l_finger_pinky_middlep.orientJoint()
 	l_finger_pinky_distal.orientJoint()
 	l_finger_pinky_tip.orientJoint(oj = False)
 	r_finger_pinky_metacarpal.orientJoint()
 	r_finger_pinky_proximal.orientJoint()
-	r_finger_pinky_middle.orientJoint()
+	r_finger_pinky_middlep.orientJoint()
 	r_finger_pinky_distal.orientJoint()
 	r_finger_pinky_tip.orientJoint(oj = False)
 
@@ -465,45 +495,45 @@ def createRig(*args):
 	
 	l_finger_index_metacarpal.createControl()
 	l_finger_index_proximal.createControl()
-	l_finger_index_middle.createControl()
+	l_finger_index_middlep.createControl()
 	l_finger_index_distal.createControl()
 	l_finger_index_tip.createControl()
 	r_finger_index_metacarpal.createControl()
 	r_finger_index_proximal.createControl()
-	r_finger_index_middle.createControl()
+	r_finger_index_middlep.createControl()
 	r_finger_index_distal.createControl()
 	r_finger_index_tip.createControl()
 	
-	l_finger_middle_metacarpal.createControl()
-	l_finger_middle_proximal.createControl()
-	l_finger_middle_middle.createControl()
-	l_finger_middle_distal.createControl()
-	l_finger_middle_tip.createControl()
-	r_finger_middle_metacarpal.createControl()
-	r_finger_middle_proximal.createControl()
-	r_finger_middle_middle.createControl()
-	r_finger_middle_distal.createControl()
-	r_finger_middle_tip.createControl()
+	l_finger_middlef_metacarpal.createControl()
+	l_finger_middlef_proximal.createControl()
+	l_finger_middlef_middlep.createControl()
+	l_finger_middlef_distal.createControl()
+	l_finger_middlef_tip.createControl()
+	r_finger_middlef_metacarpal.createControl()
+	r_finger_middlef_proximal.createControl()
+	r_finger_middlef_middlep.createControl()
+	r_finger_middlef_distal.createControl()
+	r_finger_middlef_tip.createControl()
 	
 	l_finger_ring_metacarpal.createControl()
 	l_finger_ring_proximal.createControl()
-	l_finger_ring_middle.createControl()
+	l_finger_ring_middlep.createControl()
 	l_finger_ring_distal.createControl()
 	l_finger_ring_tip.createControl()
 	r_finger_ring_metacarpal.createControl()
 	r_finger_ring_proximal.createControl()
-	r_finger_ring_middle.createControl()
+	r_finger_ring_middlep.createControl()
 	r_finger_ring_distal.createControl()
 	r_finger_ring_tip.createControl()
 	
 	l_finger_pinky_metacarpal.createControl()
 	l_finger_pinky_proximal.createControl()
-	l_finger_pinky_middle.createControl()
+	l_finger_pinky_middlep.createControl()
 	l_finger_pinky_distal.createControl()
 	l_finger_pinky_tip.createControl()
 	r_finger_pinky_metacarpal.createControl()
 	r_finger_pinky_proximal.createControl()
-	r_finger_pinky_middle.createControl()
+	r_finger_pinky_middlep.createControl()
 	r_finger_pinky_distal.createControl()
 	r_finger_pinky_tip.createControl()
 
@@ -591,12 +621,53 @@ def createRig(*args):
 	#Hide Guides
 	setAttr('guides.visibility', 0)
 
+	#GUI Data
+	allCtrl = ls("*_ctrl")
+	for i in allCtrl:
+		addAttr(charnamevalue + "_guiData", ln = i + "_guiDataX")
+		addAttr(charnamevalue + "_guiData", ln = i + "_guiDataY")
+		setAttr(charnamevalue + "_guiData." + i + "_guiDataX", worldToScreen(xform(i, q = True, t = True, ws = True))[0])
+		setAttr(charnamevalue + "_guiData." + i + "_guiDataY", worldToScreen(xform(i, q = True, t = True, ws = True))[1])
+
+	#Set Namespace
+	rigRelatives = listRelatives(charnamevalue + ':rig', ad = True)
+	for x in rigRelatives:
+		rename(x, charnamevalue + ":" + x)
+
 	print("Rig Created!")
 
 def progressNum(max):
 	global prog
 	prog+=1
 	return str(int((prog/max)*100))
+
+def worldToScreen(point):
+	defaultAspectRatio = getAttr('defaultResolution.deviceAspectRatio')
+
+	setAttr('defaultResolution.deviceAspectRatio', 0.9375)
+
+	sel = om.MSelectionList()
+	dag = om.MDagPath()
+
+	sel.add("picker_cam1")
+	sel.getDagPath(0,dag)
+
+	cam = om.MFnCamera(dag)
+	floatMat = cam.projectionMatrix()
+	projMat = om.MMatrix(floatMat.matrix)
+	floatMat = cam.postProjectionMatrix()
+	postProjMat = om.MMatrix(floatMat.matrix)
+	transMat = dag.inclusiveMatrix()
+
+	point = om.MPoint(point[0], point[1], point[2]) 
+
+	fullMat =  transMat.inverse() * projMat * postProjMat 
+	nuPoint = point * fullMat
+	screenPoint = [(nuPoint[0]/nuPoint[3]/2+0.5)*450, (1-(nuPoint[1]/nuPoint[3]/2+0.5))*480]
+
+	setAttr('defaultResolution.deviceAspectRatio', defaultAspectRatio)
+
+	return screenPoint
 
 def editControlShape():
 	#Eye_LookAt
@@ -652,7 +723,7 @@ displayaxes_btn.setCommand(displayAxes)
 addkey_btn.setCommand(addKey)
 addkeyall_btn.setCommand(addKeyAll)
 resetpose_btn.setCommand(resetPose)
-humaniserig_btn.setCommand(humaniseRig)
+deselectall_btn.setCommand(deselectAll)
 deleterig_btn.setCommand(deleteRig)
 autorig_btn.setCommand(createRig)
 
@@ -1014,7 +1085,7 @@ class Rig:
 		connectAttr(self.name + '_roll_multi.outputY', mj + '_rev.rotateZ')
 		connectAttr(self.name + '_roll_multi.outputZ', ee + '_rev.rotateZ')
 
-		print("Creating Reverse Foot Controls... (" + progressNum(240) + "%)"),
+		print("Creating Reverse Foot Controls... (" + progressNum(240) + "%)")
 
 # SPINE #
 hip = Rig("hip", t = (0, 106.85, 2.652))
@@ -1056,46 +1127,46 @@ r_finger_thumb_tip = Rig("r_finger_thumb_tip", t = (-40.527, 92.962, 15.23), p =
 #INDEX#
 l_finger_index_metacarpal = Rig("l_finger_index_metacarpal", t = (45.382, 101.311, 7.675), p = "l_wrist")
 l_finger_index_proximal = Rig("l_finger_index_proximal", t = (47.514, 93.318, 13.052), p = "l_finger_index_metacarpal")
-l_finger_index_middle = Rig("l_finger_index_middle", t = (48.218, 90.448, 14.448), p = "l_finger_index_proximal")
-l_finger_index_distal = Rig("l_finger_index_distal", t = (48.629, 87.937, 15.367), p = "l_finger_index_middle")
+l_finger_index_middlep = Rig("l_finger_index_middlep", t = (48.218, 90.448, 14.448), p = "l_finger_index_proximal")
+l_finger_index_distal = Rig("l_finger_index_distal", t = (48.629, 87.937, 15.367), p = "l_finger_index_middlep")
 l_finger_index_tip = Rig("l_finger_index_tip", t = (49, 86, 16), p = "l_finger_index_distal")
 r_finger_index_metacarpal = Rig("r_finger_index_metacarpal", t = (-45.382, 101.311, 7.675), p = "r_wrist")
 r_finger_index_proximal = Rig("r_finger_index_proximal", t = (-47.514, 93.318, 13.052), p = "r_finger_index_metacarpal")
-r_finger_index_middle = Rig("r_finger_index_middle", t = (-48.218, 90.448, 14.448), p = "r_finger_index_proximal")
-r_finger_index_distal = Rig("r_finger_index_distal", t = (-48.629, 87.937, 15.367), p = "r_finger_index_middle")
+r_finger_index_middlep = Rig("r_finger_index_middlep", t = (-48.218, 90.448, 14.448), p = "r_finger_index_proximal")
+r_finger_index_distal = Rig("r_finger_index_distal", t = (-48.629, 87.937, 15.367), p = "r_finger_index_middlep")
 r_finger_index_tip = Rig("r_finger_index_tip", t = (-49, 86, 16), p = "r_finger_index_distal")
 #MIDDLE#
-l_finger_middle_metacarpal = Rig("l_finger_middle_metacarpal", t = (46, 101.217, 6.603), p = "l_wrist")
-l_finger_middle_proximal = Rig("l_finger_middle_proximal", t = (49, 92.83, 10.919), p = "l_finger_middle_metacarpal")
-l_finger_middle_middle = Rig("l_finger_middle_middle", t = (49.284, 89.204, 11.585), p = "l_finger_middle_proximal")
-l_finger_middle_distal = Rig("l_finger_middle_distal", t = (48.689, 86, 12), p = "l_finger_middle_middle")
-l_finger_middle_tip = Rig("l_finger_middle_tip", t = (48.271, 84.081, 12.244), p = "l_finger_middle_distal")
-r_finger_middle_metacarpal = Rig("r_finger_middle_metacarpal", t = (-46, 101.217, 6.603), p = "r_wrist")
-r_finger_middle_proximal = Rig("r_finger_middle_proximal", t = (-49, 92.83, 10.919), p = "r_finger_middle_metacarpal")
-r_finger_middle_middle = Rig("r_finger_middle_middle", t = (-49.284, 89.204, 11.585), p = "r_finger_middle_proximal")
-r_finger_middle_distal = Rig("r_finger_middle_distal", t = (-48.689, 86, 12), p = "r_finger_middle_middle")
-r_finger_middle_tip = Rig("r_finger_middle_tip", t = (-48.271, 84.081, 12.244), p = "r_finger_middle_distal")
+l_finger_middlef_metacarpal = Rig("l_finger_middlef_metacarpal", t = (46, 101.217, 6.603), p = "l_wrist")
+l_finger_middlef_proximal = Rig("l_finger_middlef_proximal", t = (49, 92.83, 10.919), p = "l_finger_middlef_metacarpal")
+l_finger_middlef_middlep = Rig("l_finger_middlef_middlep", t = (49.284, 89.204, 11.585), p = "l_finger_middlef_proximal")
+l_finger_middlef_distal = Rig("l_finger_middlef_distal", t = (48.689, 86, 12), p = "l_finger_middlef_middlep")
+l_finger_middlef_tip = Rig("l_finger_middlef_tip", t = (48.271, 84.081, 12.244), p = "l_finger_middlef_distal")
+r_finger_middlef_metacarpal = Rig("r_finger_middlef_metacarpal", t = (-46, 101.217, 6.603), p = "r_wrist")
+r_finger_middlef_proximal = Rig("r_finger_middlef_proximal", t = (-49, 92.83, 10.919), p = "r_finger_middlef_metacarpal")
+r_finger_middlef_middlep = Rig("r_finger_middlef_middlep", t = (-49.284, 89.204, 11.585), p = "r_finger_middlef_proximal")
+r_finger_middlef_distal = Rig("r_finger_middlef_distal", t = (-48.689, 86, 12), p = "r_finger_middlef_middlep")
+r_finger_middlef_tip = Rig("r_finger_middlef_tip", t = (-48.271, 84.081, 12.244), p = "r_finger_middlef_distal")
 #RING#
 l_finger_ring_metacarpal = Rig("l_finger_ring_metacarpal", t = (46, 100.783, 5.433), p = "l_wrist")
 l_finger_ring_proximal = Rig("l_finger_ring_proximal", t = (49.763, 93.155, 8.511), p = "l_finger_ring_metacarpal")
-l_finger_ring_middle = Rig("l_finger_ring_middle", t = (49.312, 89.47, 8.796), p = "l_finger_ring_proximal")
-l_finger_ring_distal = Rig("l_finger_ring_distal", t = (48.491, 86.937, 8.919), p = "l_finger_ring_middle")
+l_finger_ring_middlep = Rig("l_finger_ring_middlep", t = (49.312, 89.47, 8.796), p = "l_finger_ring_proximal")
+l_finger_ring_distal = Rig("l_finger_ring_distal", t = (48.491, 86.937, 8.919), p = "l_finger_ring_middlep")
 l_finger_ring_tip = Rig("l_finger_ring_tip", t = (48, 84.47, 9.081), p = "l_finger_ring_distal")
 r_finger_ring_metacarpal = Rig("r_finger_ring_metacarpal", t = (-46, 100.783, 5.433), p = "r_wrist")
 r_finger_ring_proximal = Rig("r_finger_ring_proximal", t = (-49.763, 93.155, 8.511), p = "r_finger_ring_metacarpal")
-r_finger_ring_middle = Rig("r_finger_ring_middle", t = (-49.312, 89.47, 8.796), p = "r_finger_ring_proximal")
-r_finger_ring_distal = Rig("r_finger_ring_distal", t = (-48.491, 86.937, 8.919), p = "r_finger_ring_middle")
+r_finger_ring_middlep = Rig("r_finger_ring_middlep", t = (-49.312, 89.47, 8.796), p = "r_finger_ring_proximal")
+r_finger_ring_distal = Rig("r_finger_ring_distal", t = (-48.491, 86.937, 8.919), p = "r_finger_ring_middlep")
 r_finger_ring_tip = Rig("r_finger_ring_tip", t = (-48, 84.47, 9.081), p = "r_finger_ring_distal")
 #PINKY#
 l_finger_pinky_metacarpal = Rig("l_finger_pinky_metacarpal", t = (46, 100.686, 4.506), p = "l_wrist")
 l_finger_pinky_proximal = Rig("l_finger_pinky_proximal", t = (50, 93.654, 6.103), p = "l_finger_pinky_metacarpal")
-l_finger_pinky_middle = Rig("l_finger_pinky_middle", t = (49.827, 90.743, 5.949), p = "l_finger_pinky_proximal")
-l_finger_pinky_distal = Rig("l_finger_pinky_distal", t = (49, 89.103, 5.64), p = "l_finger_pinky_middle")
+l_finger_pinky_middlep = Rig("l_finger_pinky_middlep", t = (49.827, 90.743, 5.949), p = "l_finger_pinky_proximal")
+l_finger_pinky_distal = Rig("l_finger_pinky_distal", t = (49, 89.103, 5.64), p = "l_finger_pinky_middlep")
 l_finger_pinky_tip = Rig("l_finger_pinky_tip", t = (48, 87.794, 5.077), p = "l_finger_pinky_distal")
 r_finger_pinky_metacarpal = Rig("r_finger_pinky_metacarpal", t = (-46, 100.686, 4.506), p = "r_wrist")
 r_finger_pinky_proximal = Rig("r_finger_pinky_proximal", t = (-50, 93.654, 6.103), p = "r_finger_pinky_metacarpal")
-r_finger_pinky_middle = Rig("r_finger_pinky_middle", t = (-49.827, 90.743, 5.949), p = "r_finger_pinky_proximal")
-r_finger_pinky_distal = Rig("r_finger_pinky_distal", t = (-49, 89.103, 5.64), p = "r_finger_pinky_middle")
+r_finger_pinky_middlep = Rig("r_finger_pinky_middlep", t = (-49.827, 90.743, 5.949), p = "r_finger_pinky_proximal")
+r_finger_pinky_distal = Rig("r_finger_pinky_distal", t = (-49, 89.103, 5.64), p = "r_finger_pinky_middlep")
 r_finger_pinky_tip = Rig("r_finger_pinky_tip", t = (-48, 87.794, 5.077), p = "r_finger_pinky_distal")
 
 # LEGS #
