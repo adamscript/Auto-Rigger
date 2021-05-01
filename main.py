@@ -2,7 +2,7 @@ from pymel.core import *
 from pymel.core.nodetypes import *
 import maya.OpenMaya as om
 
-win = window(title="Awan's Auto Rigger")
+win = window(title="Awan's Auto Rigging Toolkit")
 layout = columnLayout()
 
 #BUTTONS
@@ -21,11 +21,12 @@ deselectall_btn = button(l = "Deselect All", w = 200, p = layout)
 separator()
 deleterig_btn = button(l = "Delete Rig", w = 200, p = layout)
 separator()
-charname_txtfield = textField(pht = "Character Name...", w = 200, p = layout)
+namespace_txtfield = textField(w = 200, p = layout)
+namespace_listfield = textScrollList(w = 200, h = 100, p = layout, sc = namespace_listsel)
 separator()
 createpickergui_chkbox = checkBox(l = "Create Picker GUI")
 separator()
-autorig_btn = button(l = "Awto Rig!", w = 200, h = 150, p = layout)
+autorig_btn = button(l = "Awto Rig!", w = 200, h = 50, p = layout)
 
 def createGuides(*args):
 	group(n = "guides")
@@ -195,11 +196,11 @@ def humaniseRig(*args):
 	print("Rig Humanised!")
 
 def deleteRig(*args):
-	allRig = ls(charnamevalue + ':rig')
-	delete(allRig)
+	for i in ls("*" + namespacevalue() + ":rig", r = True):
+		delete(i)
 	mel.eval('MLdeleteUnused;')
-	global prog
-	prog = 1
+	namespace(rm = namespacevalue())
+	namespace_listappend()
 
 	print("Rig Deleted!")
 
@@ -211,22 +212,19 @@ def createPickerGUI():
 	viewFit("picker_cam1")
 	setAttr('picker_camShape1.orthographicWidth', (bb[4]*105)/100)
 	
-	#workspace = workspace(q = True, rd = True)
-	#pb = playblast(st = 1, et = 1, fmt = 'image', f = workspace + "testpb",  fp = 0, p = 10, c = 'jpg', qlt = 100, w = 450 * 10, h = 480 * 10, orn = False, v = False)
+	lookThru("picker_cam1")
+	pb = playblast(st = 1, et = 1, fmt = 'image', f = workspace(q = True, rd = True) + "images/" + namespacevalue() + "_pb",  fp = 0, p = 10, c = 'jpg', qlt = 100, w = 450 * 10, h = 480 * 10, orn = False, v = False)
 
-	group(em = True, n = charnamevalue + "_guiData")
-	parent(charnamevalue + "_guiData", charnamevalue + ':rig')
+	group(em = True, n = "guiData")
+	parent("guiData", namespacevalue() + ':rig')
 
 def createRig(*args):
-	global charmodel
-	charmodel = ls(sl = True)
+	namespace(add = namespacevalue())
+
+	getMultipleSelections()
 	
-	global charnamevalue
-	charnamevalue = textField(charname_txtfield, q = True, tx = True)
-	namespace(add = charnamevalue)
-	
-	group(n = charnamevalue + ':rig', em = 	True)
-	parent(charnamevalue + ':rig', w = True)
+	group(n = namespacevalue() + ':rig', em = 	True)
+	parent(namespacevalue() + ':rig', w = True)
 
 	createPickerGUI()
 
@@ -234,7 +232,7 @@ def createRig(*args):
 	root_ctrl.setNormalY(1)
 	root_ctrl.setNormalZ(0)
 	group('root_ctrl', n = "root_ctrl_offset")
-	parent('root_ctrl_offset', charnamevalue + ':rig')
+	parent('root_ctrl_offset', namespacevalue() + ':rig')
 	
 	grp_ctrl = MakeNurbCircle(r = 30, n = "grp_ctrl")
 	grp_ctrl.setNormalY(1)
@@ -622,17 +620,41 @@ def createRig(*args):
 	setAttr('guides.visibility', 0)
 
 	#GUI Data
+	addAttr("guiData", ln = "name", type = "string")
+	setAttr("guiData.name", namespacevalue(), type = "string")
+
 	allCtrl = ls("*_ctrl")
 	for i in allCtrl:
-		addAttr(charnamevalue + "_guiData", ln = i + "_guiDataX")
-		addAttr(charnamevalue + "_guiData", ln = i + "_guiDataY")
-		setAttr(charnamevalue + "_guiData." + i + "_guiDataX", worldToScreen(xform(i, q = True, t = True, ws = True))[0])
-		setAttr(charnamevalue + "_guiData." + i + "_guiDataY", worldToScreen(xform(i, q = True, t = True, ws = True))[1])
+		addAttr("guiData", ln = i + "_guiDataX")
+		addAttr("guiData", ln = i + "_guiDataY")
+		setAttr("guiData." + i + "_guiDataX", worldToScreen(xform(i, q = True, t = True, ws = True))[0])
+		setAttr("guiData." + i + "_guiDataY", worldToScreen(xform(i, q = True, t = True, ws = True))[1])
 
 	#Set Namespace
-	rigRelatives = listRelatives(charnamevalue + ':rig', ad = True)
+	rigRelatives = listRelatives(namespacevalue() + ':rig', ad = True)
 	for x in rigRelatives:
-		rename(x, charnamevalue + ":" + x)
+		rename(x, namespacevalue() + ":" + x)
+	
+	switches = ls("*switch")
+	for x in switches:
+		rename(x, namespacevalue() + ":" + x)
+
+	conditions = ls("*condition")
+	for x in conditions:
+		rename(x, namespacevalue() + ":" + x)
+
+	pma = ls("*pma")
+	for x in pma:
+		rename(x, namespacevalue() + ":" + x)
+
+	multi = ls("*multi")
+	for x in multi:
+		rename(x, namespacevalue() + ":" + x)
+
+	namespace_listappend()
+
+	#Delete Playblast Camera
+	delete("picker_cam1")
 
 	print("Rig Created!")
 
@@ -663,7 +685,7 @@ def worldToScreen(point):
 
 	fullMat =  transMat.inverse() * projMat * postProjMat 
 	nuPoint = point * fullMat
-	screenPoint = [(nuPoint[0]/nuPoint[3]/2+0.5)*450, (1-(nuPoint[1]/nuPoint[3]/2+0.5))*480]
+	screenPoint = [(nuPoint[0]/nuPoint[3]/2+0.5)*470, (1-(nuPoint[1]/nuPoint[3]/2+0.5))*560]
 
 	setAttr('defaultResolution.deviceAspectRatio', defaultAspectRatio)
 
@@ -715,6 +737,10 @@ def editControlShape():
 	xform('hip_ctrl.ep[2]', t = (0, 3.5, 0), r = True)
 	xform('hip_ctrl.ep[0:8]', t = (0, (((l_thigh_pos[1] - l_knee_pos[1]) / 4) * -1), 0), s = (1, 1, 0.8), r = True)
 
+def getMultipleSelections():
+	global charmodel
+	charmodel = ls(sl = True)
+
 #ADD COMMANDS TO BUTTONS WHEN PRESSED
 guides_btn.setCommand(createGuides)
 mirrorguides_btn.setCommand(mirrorGuides)
@@ -726,6 +752,27 @@ resetpose_btn.setCommand(resetPose)
 deselectall_btn.setCommand(deselectAll)
 deleterig_btn.setCommand(deleteRig)
 autorig_btn.setCommand(createRig)
+
+def namespacevalue():
+	namespacevalue = textField(namespace_txtfield, q = True, tx = True)
+	return namespacevalue
+
+def namespace_listappend():
+	textScrollList(namespace_listfield, e = True, ra = True)
+
+	nsinfo = namespaceInfo(lon = True, r = True)
+	for i in nsinfo:
+		if(i != "UI" and i != "shared"):
+			textScrollList(namespace_listfield, e = True, append = i)
+			print(i)
+		else:
+			pass
+
+namespace_listappend()
+
+def namespace_listsel():
+	for i in textScrollList(namespace_listfield, q = True, si = True):
+		textField(namespace_txtfield, e = True, tx = i)
 
 win.show()
 
