@@ -25,6 +25,9 @@ settings_layout = QVBoxLayout()
 namespace_layout = QHBoxLayout()
 namespace_layout.setSpacing(2)
 
+ctrledit_layout = QHBoxLayout()
+ctrledit_layout.setSpacing(2)
+
 def namespace_listsel():
     #for i in textScrollList(namespace_listfield, q = True, si = True):
         #textField(namespace_txtfield, e = True, tx = i)
@@ -41,8 +44,19 @@ class Window(MayaQWidgetDockableMixin, QDialog):
         self.setLayout(self.layout)
 
         self.menubar = QMenuBar(self)
-        self.menubar.addMenu("Show")
-        self.menubar.addMenu("Help")
+        self.showmenu = self.menubar.addMenu("Show")
+        self.showmenu.addAction("Local Rotation Axes")
+        self.showmenu.addSeparator()
+        self.showmenu.addAction("Picker GUI")
+        
+        self.addmenu = self.menubar.addMenu("Help")
+        self.addmenu.addAction("Help on Awan's Auto Rigging Toolkit")
+        self.addmenu.addSeparator()
+        self.addmenu.addAction("Buy on Gumroad")
+        self.addmenu.addAction("Donate")
+        self.addmenu.addSeparator()
+        self.addmenu.addAction("Developed with ❤ by awwwan")
+        
         self.layout.addWidget(self.menubar)
     
     def addLayout(self, layout):
@@ -51,7 +65,7 @@ class Window(MayaQWidgetDockableMixin, QDialog):
 if __name__ == "__main__":
     window = Window()
     window.setMinimumSize(265, 500)
-    window.resize(350, 500)
+    window.resize(265, 500)
     window.show(dockable=True)
 
 class UI():
@@ -182,61 +196,6 @@ class FrameLayout(QGroupBox):
         painter.drawPolygon(QPolygon(points))#(7)
         painter.setBrush(currentBrush)#(8)
         painter.setPen(currentPen)
-
-#BUTTONS
-
-guides_btn = UI(label = "Create Guides")
-
-mirrorguides_btn = UI(label = "Mirror Guides")
-deleteguides_btn = UI(label = "Delete Guides")
-
-settings_frame = FrameLayout("Settings", window)
-
-displayaxes_btn = UI(label = "Display Local Rotation Axes")
-
-deleterig_btn = UI(label = "Delete Rig")
-
-editctrl_btn = UI(label = "Edit Control Shape")
-mirrorctrl_btn = UI(label = "Mirror Control Shape")
-
-namespace_cmb = UI()
-namespace_lbl = UI(label = "Namespace :")
-
-#namespace_txtfield = textField(p = clmnlayout)
-#namespace_listfield = textScrollList(h = 100, sc = namespace_listsel)
-
-createikctrl_chkbox = UI(label = "Create IK Control")
-createrevctrl_chkbox = UI(label = "Create Reverse Foot Control")
-createpickergui_chkbox = UI(label = "Create Picker GUI")
-
-autorig_btn = UI(label = "Awto Rig!")
-
-guides_btn.drawButton(createGuides).setLayout(guidecreate_layout)
-
-window.addLayout(guide_layout)
-guide_layout.addLayout(guidecreate_layout)
-guide_layout.addLayout(guideedit_layout)
-mirrorguides_btn.drawButton(mirrorGuides).setLayout(guideedit_layout)
-deleteguides_btn.drawButton(deleteGuides).setLayout(guideedit_layout)
-
-autorig_btn.drawButton(createRig, height = 50)
-
-window.layout.addWidget(settings_frame)
-settings_frame.setLayout(settings_layout)
-settings_layout.addLayout(namespace_layout)
-
-window.addLayout(namespace_layout)
-namespace_lbl.drawTextLabel().setLayout(namespace_layout)
-namespace_cmb.drawComboBox().setLayout(namespace_layout)
-
-createikctrl_chkbox.drawCheckBox().setLayout(settings_layout)
-createrevctrl_chkbox.drawCheckBox().setLayout(settings_layout)
-createpickergui_chkbox.drawCheckBox().setLayout(settings_layout)
-
-displayaxes_btn.drawButton(displayAxes).setLayout(settings_layout)
-deleterig_btn.drawButton(deleteRig).setLayout(settings_layout)
-
-window.layout.addStretch()
 
 def createGuides(*args):
     group(n = "guides")
@@ -379,6 +338,12 @@ def deleteGuides(*args):
     prog = 1
 
     print("Guides Deleted!")
+
+def editControl(*args):
+    print("Control edited!")
+
+def mirrorControl(*args):
+    print("Control mirrored!")
 
 def displayAxes(*args):
     selectedJoints = ls(type = 'joint', sl = True)
@@ -952,10 +917,63 @@ def getMultipleSelections():
     global charmodel
     charmodel = ls(sl = True)
 
+#BUTTONS
+
+guides_btn = UI(label = "Create Guides")
+
+mirrorguides_btn = UI(label = "Mirror Guides")
+deleteguides_btn = UI(label = "Delete Guides")
+
+settings_frame = FrameLayout("Settings", window)
+
+deleterig_btn = UI(label = "Delete Rig")
+
+editctrl_btn = UI(label = "Edit Control Shape")
+mirrorctrl_btn = UI(label = "Mirror Control Shape")
+
+namespace_cmb = UI()
+namespace_lbl = UI(label = "Namespace :")
+
+createikctrl_chkbox = UI(label = "Create IK Control")
+createrevctrl_chkbox = UI(label = "Create Reverse Foot Control")
+createpickergui_chkbox = UI(label = "Create Picker GUI")
+
+autorig_btn = UI(label = "Awto Rig!")
+
+guides_btn.drawButton(createGuides).setLayout(guidecreate_layout)
+
+window.addLayout(guide_layout)
+guide_layout.addLayout(guidecreate_layout)
+guide_layout.addLayout(guideedit_layout)
+mirrorguides_btn.drawButton(mirrorGuides).setLayout(guideedit_layout)
+deleteguides_btn.drawButton(deleteGuides).setLayout(guideedit_layout)
+
+autorig_btn.drawButton(createRig, height = 50)
+
+window.layout.addWidget(settings_frame)
+settings_frame.setLayout(settings_layout)
+settings_layout.addLayout(namespace_layout)
+
+window.addLayout(namespace_layout)
+namespace_lbl.drawTextLabel().setLayout(namespace_layout)
+namespace_cmb.drawComboBox().setLayout(namespace_layout)
+
+createikctrl_chkbox.drawCheckBox().setLayout(settings_layout)
+createrevctrl_chkbox.drawCheckBox().setLayout(settings_layout)
+createpickergui_chkbox.drawCheckBox().setLayout(settings_layout)
+
+settings_layout.addLayout(ctrledit_layout)
+editctrl_btn.drawButton(editControl).setLayout(ctrledit_layout)
+mirrorctrl_btn.drawButton(mirrorControl).setLayout(ctrledit_layout)
+
+deleterig_btn.drawButton(deleteRig).setLayout(settings_layout)
+
+window.layout.addStretch()
+
 nsinfo = namespaceInfo(lon = True, r = True)
 for i in nsinfo:
     if(i != "UI" and i != "shared"):
-        namespace_cmb.addItem(i)
+        namespace_cmb.gui.addItem(i)
     else:
         pass
 
