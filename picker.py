@@ -227,7 +227,10 @@ class GUI():
     def move(self, offsetX = 0, offsetY = 0):
         self.namespace = ls("*" + namespace_sel.currentText() + ":guiData", r = True)
         for i in self.namespace:
-            self.button.move((getAttr(i + "." + self.name + "_ctrl_guiDataX")) - (self.radius/2) + offsetX, (getAttr(i + "." + self.name + "_ctrl_guiDataY")) - (self.radius/2) + offsetY)
+            if(self.shape != "rect"):
+                self.button.move((getAttr(i + "." + self.name + "_ctrl_guiDataX")) - (self.radius/2) + offsetX, (getAttr(i + "." + self.name + "_ctrl_guiDataY")) - (self.radius/2) + offsetY)
+            else:
+                self.button.move((getAttr(i + "." + self.name + "_ctrl_guiDataX")) - (self.width/2) + offsetX, (getAttr(i + "." + self.name + "_ctrl_guiDataY")) - (self.height/2) + offsetY)
         
     def setText(self, txt = ""):
         self.button.setText(txt)
@@ -279,10 +282,10 @@ ctrlgrp.drawSelectionButton(235, 490)
 # SPINE #
 spine = GUI("spine", "square", radius = 20, color = "#cad936")
 
-hip = GUI("hip", "circle", radius = 20, color = "#cad936")
-waist = GUI("waist", "circle", radius = 20, color = "#cad936")
-chest = GUI("chest", "circle", radius = 20, color = "#cad936")
-collarbone = GUI("collarbone", "circle", radius = 18, color = "#cad936")
+hip = GUI("hip", "rect", width = 80, height = 10, color = "#cad936")
+waist = GUI("waist", "rect", width = 60, height = 10, color = "#cad936")
+chest = GUI("chest", "rect", width = 60, height = 10, color = "#cad936")
+collarbone = GUI("collarbone", "square", radius = 18, color = "#cad936")
 
 spine.drawSelectionButton()
 
