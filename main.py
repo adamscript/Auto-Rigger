@@ -391,10 +391,10 @@ def displayAxes(*args):
         print("Axes Displayed!")
 
 def deleteRig(*args):
-    for i in ls("*" + namespacevalue() + ":rig", r = True):
+    for i in ls("*" + namespace_cmb.gui.currentText() + ":rig", r = True):
         delete(i)
     mel.eval('MLdeleteUnused;')
-    namespace(rm = namespacevalue())
+    namespace(rm = namespace_cmb.gui.currentText())
     namespace_listappend()
 
     print("Rig Deleted!")
@@ -408,18 +408,18 @@ def createPickerGUI():
     setAttr('picker_camShape1.orthographicWidth', (bb[4]*105)/100)
     
     lookThru("picker_cam1")
-    pb = playblast(st = 1, et = 1, fmt = 'image', f = workspace(q = True, rd = True) + "images/" + namespacevalue() + "_pb",  fp = 0, p = 10, c = 'jpg', qlt = 100, w = 450 * 10, h = 480 * 10, orn = False, v = False)
+    pb = playblast(st = 1, et = 1, fmt = 'image', f = workspace(q = True, rd = True) + "images/" + namespace_cmb.gui.currentText() + "_pb",  fp = 0, p = 10, c = 'jpg', qlt = 100, w = 450 * 10, h = 480 * 10, orn = False, v = False)
 
     group(em = True, n = "guiData")
-    parent("guiData", namespacevalue() + ':rig')
+    parent("guiData", namespace_cmb.gui.currentText() + ':rig')
 
 def createRig(*args):
-    namespace(add = namespacevalue())
+    namespace(add = namespace_cmb.gui.currentText())
 
     getMultipleSelections()
     
-    group(n = namespacevalue() + ':rig', em = 	True)
-    parent(namespacevalue() + ':rig', w = True)
+    group(n = namespace_cmb.gui.currentText() + ':rig', em = 	True)
+    parent(namespace_cmb.gui.currentText() + ':rig', w = True)
 
     createPickerGUI()
 
@@ -427,7 +427,7 @@ def createRig(*args):
     root_ctrl.setNormalY(1)
     root_ctrl.setNormalZ(0)
     group('root_ctrl', n = "root_ctrl_offset")
-    parent('root_ctrl_offset', namespacevalue() + ':rig')
+    parent('root_ctrl_offset', namespace_cmb.gui.currentText() + ':rig')
     
     grp_ctrl = MakeNurbCircle(r = 30, n = "grp_ctrl")
     grp_ctrl.setNormalY(1)
@@ -470,13 +470,13 @@ def createRig(*args):
 
     
     l_clavicle.createJoint()
-    l_shoulder.createJoint(ik = True)
-    l_elbow.createJoint(ik = True)
-    l_wrist.createJoint(ik = True)
+    l_shoulder.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_elbow.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_wrist.createJoint(ik = createikctrl_chkbox.gui.isChecked())
     r_clavicle.createJoint()
-    r_shoulder.createJoint(ik = True)
-    r_elbow.createJoint(ik = True)
-    r_wrist.createJoint(ik = True)
+    r_shoulder.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_elbow.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_wrist.createJoint(ik = createikctrl_chkbox.gui.isChecked())
     
     l_finger_thumb_metacarpal.createJoint()
     l_finger_thumb_proximal.createJoint()
@@ -531,19 +531,19 @@ def createRig(*args):
     r_finger_pinky_distal.createJoint()
     r_finger_pinky_tip.createJoint()
 
-    l_thigh.createJoint(ik = True)
-    l_knee.createJoint(ik = True)
-    l_ankle.createJoint(ik = True, rev = True)
-    l_foot_ball.createJoint(ik = True, rev = True)
-    l_foot_toes.createJoint(ik = True, rev = True)
+    l_thigh.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_knee.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_ankle.createJoint(ik = createikctrl_chkbox.gui.isChecked(), rev = True)
+    l_foot_ball.createJoint(ik = createikctrl_chkbox.gui.isChecked(), rev = True)
+    l_foot_toes.createJoint(ik = createikctrl_chkbox.gui.isChecked(), rev = True)
     l_foot_heel.createJoint(rev = True)
     l_foot_inner.createJoint()
     l_foot_outer.createJoint()
-    r_thigh.createJoint(ik = True)
-    r_knee.createJoint(ik = True)
-    r_ankle.createJoint(ik = True, rev = True)
-    r_foot_ball.createJoint(ik = True, rev = True)
-    r_foot_toes.createJoint(ik = True, rev = True)
+    r_thigh.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_knee.createJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_ankle.createJoint(ik = createikctrl_chkbox.gui.isChecked(), rev = True)
+    r_foot_ball.createJoint(ik = createikctrl_chkbox.gui.isChecked(), rev = True)
+    r_foot_toes.createJoint(ik = createikctrl_chkbox.gui.isChecked(), rev = True)
     r_foot_heel.createJoint(rev = True)
     r_foot_inner.createJoint()
     r_foot_outer.createJoint()
@@ -562,13 +562,13 @@ def createRig(*args):
     r_eye.orientJoint(oj = False)
     
     l_clavicle.orientJoint()
-    l_shoulder.orientJoint(ik = True)
-    l_elbow.orientJoint(ik = True)
-    l_wrist.orientJoint(oj = False, ik = True)
+    l_shoulder.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_elbow.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_wrist.orientJoint(oj = False, ik = createikctrl_chkbox.gui.isChecked())
     r_clavicle.orientJoint()
-    r_shoulder.orientJoint(ik = True)
-    r_elbow.orientJoint(ik = True)
-    r_wrist.orientJoint(oj = False, ik = True)
+    r_shoulder.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_elbow.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_wrist.orientJoint(oj = False, ik = createikctrl_chkbox.gui.isChecked())
     
     l_finger_thumb_metacarpal.orientJoint()
     l_finger_thumb_proximal.orientJoint()
@@ -623,33 +623,36 @@ def createRig(*args):
     r_finger_pinky_distal.orientJoint()
     r_finger_pinky_tip.orientJoint(oj = False)
 
-    l_thigh.orientJoint(ik = True)
-    l_knee.orientJoint(ik = True)
-    l_ankle.orientJoint(oj = False, ik = True)
+    l_thigh.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_knee.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    l_ankle.orientJoint(oj = False, ik = createikctrl_chkbox.gui.isChecked())
     l_foot_ball.orientJoint()
     l_foot_toes.orientJoint(oj = False)
     #l_foot_heel.orientJoint()
     #l_foot_inner.orientJoint()
     #l_foot_outer.orientJoint()
-    r_thigh.orientJoint(ik = True)
-    r_knee.orientJoint(ik = True)
-    r_ankle.orientJoint(oj = False, ik = True)
+    r_thigh.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_knee.orientJoint(ik = createikctrl_chkbox.gui.isChecked())
+    r_ankle.orientJoint(oj = False, ik = createikctrl_chkbox.gui.isChecked())
     r_foot_ball.orientJoint()
     r_foot_toes.orientJoint(oj = False)
     #r_foot_heel.orientJoint()
     #r_foot_inner.orientJoint()
     #r_foot_outer.orientJoint()
 
-    #IK FK SYSTEMS
-        
-    group('l_thigh_ik', 'l_thigh_fk', n =  'l_leg_ik_fk')
-    group('l_shoulder_ik', 'l_shoulder_fk', n = 'l_arm_ik_fk')
+    if createikctrl_chkbox.gui.isChecked():
+        #IK FK SYSTEMS
+            
+        group('l_thigh_ik', 'l_thigh_fk', n =  'l_leg_ik_fk')
+        group('l_shoulder_ik', 'l_shoulder_fk', n = 'l_arm_ik_fk')
 
-    group('r_thigh_ik', 'r_thigh_fk', n =  'r_leg_ik_fk')
-    group('r_shoulder_ik', 'r_shoulder_fk', n = 'r_arm_ik_fk')
+        group('r_thigh_ik', 'r_thigh_fk', n =  'r_leg_ik_fk')
+        group('r_shoulder_ik', 'r_shoulder_fk', n = 'r_arm_ik_fk')
 
-    group('l_leg_ik_fk', 'l_arm_ik_fk', 'r_leg_ik_fk', 'r_arm_ik_fk', n = 'ik_fk_joints')
-    parent('ik_fk_joints', 'root_ctrl')
+        group('l_leg_ik_fk', 'l_arm_ik_fk', 'r_leg_ik_fk', 'r_arm_ik_fk', n = 'ik_fk_joints')
+        parent('ik_fk_joints', 'root_ctrl')
+    elif not createikctrl_chkbox.gui.isChecked():
+        pass
 
     # CONTROLLERS #
     
@@ -666,16 +669,19 @@ def createRig(*args):
     r_eye.createControl(r = 2)
 
     l_clavicle.createControl(r = 5)
-    l_shoulder.createControl(r = 10, fk = True)
-    l_elbow.createControl(r = 10, fk = True)
-    l_wrist.createControl(r = 10, fk = True)
+    l_shoulder.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
+    l_elbow.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
+    l_wrist.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
     r_clavicle.createControl(r = 5)
-    r_shoulder.createControl(r = 10, fk = True)
-    r_elbow.createControl(r = 10, fk = True)
-    r_wrist.createControl(r = 10, fk = True)
+    r_shoulder.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
+    r_elbow.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
+    r_wrist.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
 
-    l_arm.createIKControl(sj = 'l_shoulder', ee = 'l_wrist', mj = 'l_elbow')
-    r_arm.createIKControl(sj = 'r_shoulder', ee = 'r_wrist', mj = 'r_elbow')
+    if createikctrl_chkbox.gui.isChecked():
+        l_arm.createIKControl(sj = 'l_shoulder', ee = 'l_wrist', mj = 'l_elbow')
+        r_arm.createIKControl(sj = 'r_shoulder', ee = 'r_wrist', mj = 'r_elbow')
+    elif not createikctrl_chkbox.gui.isChecked():
+        pass
 
     l_finger_thumb_metacarpal.createControl()
     l_finger_thumb_proximal.createControl()
@@ -730,58 +736,68 @@ def createRig(*args):
     r_finger_pinky_distal.createControl()
     r_finger_pinky_tip.createControl()
 
-    l_thigh.createControl(r = 15, fk = True)
-    l_knee.createControl(r = 10, fk = True)
-    l_ankle.createControl(r = 10, fk = True)
+    l_thigh.createControl(r = 15, fk = createikctrl_chkbox.gui.isChecked())
+    l_knee.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
+    l_ankle.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
     l_foot_ball.createControl(r = 5)
     l_foot_toes.createControl(r = 5)
     #l_foot_heel.createControl()
     #l_foot_inner.createControl()
     #l_foot_outer.createControl()
-    r_thigh.createControl(r = 15, fk = True)
-    r_knee.createControl(r = 10, fk = True)
-    r_ankle.createControl(r = 10, fk = True)
+    r_thigh.createControl(r = 15, fk = createikctrl_chkbox.gui.isChecked())
+    r_knee.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
+    r_ankle.createControl(r = 10, fk = createikctrl_chkbox.gui.isChecked())
     r_foot_ball.createControl(r = 5)
     r_foot_toes.createControl(r = 5)
     #r_foot_heel.createControl()
     #r_foot_inner.createControl()
     #r_foot_outer.createControl()
 
-    l_leg.createIKControl(sj = 'l_thigh', ee = 'l_ankle', mj = 'l_knee')
-    r_leg.createIKControl(sj = 'r_thigh', ee = 'r_ankle', mj = 'r_knee')
+    if createikctrl_chkbox.gui.isChecked():
+        l_leg.createIKControl(sj = 'l_thigh', ee = 'l_ankle', mj = 'l_knee')
+        r_leg.createIKControl(sj = 'r_thigh', ee = 'r_ankle', mj = 'r_knee')
+    elif not createikctrl_chkbox.gui.isChecked():
+        pass
 
-    l_foot.createReverseControl(sj = 'l_ankle', ee = 'l_foot_toes', mj = 'l_foot_ball', bj = 'l_foot_heel')
-    r_foot.createReverseControl(sj = 'r_ankle', ee = 'r_foot_toes', mj = 'r_foot_ball', bj = 'r_foot_heel')
+    if createrevctrl_chkbox.gui.isChecked():
+        l_foot.createReverseControl(sj = 'l_ankle', ee = 'l_foot_toes', mj = 'l_foot_ball', bj = 'l_foot_heel')
+        r_foot.createReverseControl(sj = 'r_ankle', ee = 'r_foot_toes', mj = 'r_foot_ball', bj = 'r_foot_heel')
+    elif not createrevctrl_chkbox.gui.isChecked():
+        pass
     
     editControlShape()
-    
-    #IK FK SYSTEMS
-        
-    parentConstraint('hip_ctrl', 'l_leg_ik_fk', mo = True)
 
     parent("l_clavicle_ctrl_offset", 'collarbone_ctrl')
-    parentConstraint('l_clavicle_ctrl', 'l_arm_ik_fk', mo = True)
-    #parentConstraint('collarbone_ctrl', 'l_arm_ik_fk', mo = True)
-
-    parentConstraint('hip_ctrl', 'r_leg_ik_fk', mo = True)
-
     parent("r_clavicle_ctrl_offset", 'collarbone_ctrl')
-    parentConstraint('r_clavicle_ctrl', 'r_arm_ik_fk', mo = True)
-    #parentConstraint('collarbone_ctrl', 'r_arm_ik_fk', mo = True)
+    
+    if createikctrl_chkbox.gui.isChecked():
+        #IK FK SYSTEMS
+            
+        parentConstraint('hip_ctrl', 'l_leg_ik_fk', mo = True)
+        parentConstraint('l_clavicle_ctrl', 'l_arm_ik_fk', mo = True)
+
+        parentConstraint('hip_ctrl', 'r_leg_ik_fk', mo = True)
+        parentConstraint('r_clavicle_ctrl', 'r_arm_ik_fk', mo = True)
+    elif not createikctrl_chkbox.gui.isChecked():
+        pass
 
     #lock and hide attributes
 
     offsetAttr = ['tx','ty','tz','rx','ry','rz','sx','sy','sz']
     offsetGroup = ls('*_offset')
-    ikfkswitch = ls('*ikfk_switch_ctrl')
     
     for i in offsetGroup:
         for j in offsetAttr:
             setAttr(i + '.' + j, l = True, k = False, cb = False)
 
-    for i in ikfkswitch:
-        for j in offsetAttr:
-            setAttr(i + '.' + j, l = True, k = False, cb = False)
+    if createikctrl_chkbox.gui.isChecked():
+        ikfkswitch = ls('*ikfk_switch_ctrl')
+        
+        for i in ikfkswitch:
+            for j in offsetAttr:
+                setAttr(i + '.' + j, l = True, k = False, cb = False)
+    elif not createikctrl_chkbox.gui.isChecked():
+        pass
 
     #colour overrides
 
@@ -816,7 +832,7 @@ def createRig(*args):
 
     #GUI Data
     addAttr("guiData", ln = "name", type = "string")
-    setAttr("guiData.name", namespacevalue(), type = "string")
+    setAttr("guiData.name", namespace_cmb.gui.currentText(), type = "string")
 
     allCtrl = ls("*_ctrl")
     for i in allCtrl:
@@ -826,25 +842,25 @@ def createRig(*args):
         setAttr("guiData." + i + "_guiDataY", worldToScreen(xform(i, q = True, t = True, ws = True))[1])
 
     #Set Namespace
-    rigRelatives = listRelatives(namespacevalue() + ':rig', ad = True)
+    rigRelatives = listRelatives(namespace_cmb.gui.currentText() + ':rig', ad = True)
     for x in rigRelatives:
-        rename(x, namespacevalue() + ":" + x)
+        rename(x, namespace_cmb.gui.currentText() + ":" + x)
     
     switches = ls("*switch")
     for x in switches:
-        rename(x, namespacevalue() + ":" + x)
+        rename(x, namespace_cmb.gui.currentText() + ":" + x)
 
     conditions = ls("*condition")
     for x in conditions:
-        rename(x, namespacevalue() + ":" + x)
+        rename(x, namespace_cmb.gui.currentText() + ":" + x)
 
     pma = ls("*pma")
     for x in pma:
-        rename(x, namespacevalue() + ":" + x)
+        rename(x, namespace_cmb.gui.currentText() + ":" + x)
 
     multi = ls("*multi")
     for x in multi:
-        rename(x, namespacevalue() + ":" + x)
+        rename(x, namespace_cmb.gui.currentText() + ":" + x)
 
     namespace_listappend()
 
@@ -936,15 +952,10 @@ def getMultipleSelections():
     global charmodel
     charmodel = ls(sl = True)
 
-def namespacevalue():
-    #namespacevalue = textField(namespace_txtfield, q = True, tx = True)
-    return namespacevalue
-
 nsinfo = namespaceInfo(lon = True, r = True)
 for i in nsinfo:
     if(i != "UI" and i != "shared"):
         namespace_cmb.addItem(i)
-        print(i)
     else:
         pass
 
@@ -1412,6 +1423,4 @@ r_leg = Rig("r_leg", p = "r_ankle")
 l_foot = Rig("l_foot", p = "l_leg")
 r_foot = Rig("r_foot", p = "r_leg")
 
-#MAKE IK, HUMANISE, AND SKIN WEIGHT A CHECKBOX OPTION
-#ADD MIRROR CONTROLS
-#CREATE RIG UI
+print(namespace_cmb.gui.currentText())
