@@ -59,6 +59,35 @@ if __name__ == "__main__":
     window.resize(265, 500)
     window.show(dockable=True)
 
+class ProgressWindow(MayaQWidgetDockableMixin, QDialog):
+    def __init__(self):
+        super(ProgressWindow, self).__init__()
+        self.setFixedWidth(450)
+        self.setModal(True)
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.headerlayout = QHBoxLayout()
+        self.headerlayout.alignment()
+        self.layout.addLayout(self.headerlayout)
+
+        self.headerlayout.addStretch()
+        self.button = QPushButton()
+        self.button.setText("Ok")
+        self.button.clicked.connect(self.close)
+        self.headerlayout.addWidget(self.button)
+
+        self.textbox = QTextEdit()
+        self.textbox.setReadOnly(True)
+        self.layout.addWidget(self.textbox)
+
+    def close(self):
+        self.textbox.clear()
+        self.done(True)
+
+progresswin = ProgressWindow()
+
 class UI():
     def __init__(self, label = ""):
         self.label = label
@@ -199,6 +228,9 @@ class FrameLayout(QGroupBox):
         painter.setPen(currentPen)
 
 def createGuides(*args):
+    progresswin.setWindowTitle("Awan is creating your guides...")
+    progresswin.show()
+    
     group(n = "guides")
     global prog
     prog = 1
@@ -297,6 +329,7 @@ def createGuides(*args):
     select(cl = True)
 
     print("Guides Created!")
+    progresswin.textbox.append("Guides Created!")
 
 def mirrorGuides(*args):
     selectedGuide = ls(sl = True, l = True)
@@ -435,13 +468,27 @@ def createRig(*args):
         return
     else:
         pass
-
-    if not ls(sl = True):
-        om.MGlobal.displayError("Select a character model!")
-        return
+    
+    if createpickergui_chkbox.gui.isChecked():
+        if not ls(sl = True):
+            om.MGlobal.displayError("Select a character model!")
+            return
+        else:
+            pass
     else:
         pass
 
+    global prognum
+    prognum = 333
+
+    if not createpickergui_chkbox.gui.isChecked():
+        prognum -= 93
+    else:
+        pass
+    
+    progresswin.setWindowTitle("Awan is creating your rig...")
+    progresswin.show()
+    
     namespace(add = namespace_cmb.gui.currentText(), f = True)
 
     getSelection()
@@ -874,6 +921,12 @@ def createRig(*args):
             addAttr("guiData", ln = i + "_guiDataY")
             setAttr("guiData." + i + "_guiDataX", worldToScreen(xform(i, q = True, t = True, ws = True))[0])
             setAttr("guiData." + i + "_guiDataY", worldToScreen(xform(i, q = True, t = True, ws = True))[1])
+
+            progress_msg = "Creating Picker GUI... (" + progressNum(prognum) + "%) " + i
+            print(progress_msg)
+            progresswin.textbox.append(progress_msg)
+            QApplication.processEvents()
+
     elif not createpickergui_chkbox.gui.isChecked():
         pass
 
@@ -907,6 +960,7 @@ def createRig(*args):
         pass
 
     print("Rig Created!")
+    progresswin.textbox.append("Rig Created!")
 
 def progressNum(max):
     global prog
@@ -1083,7 +1137,10 @@ class Rig:
         else:
             self.locator.setParent("guides")
 
-        print("Creating Guides... (" + progressNum(83) + "%)")
+        progress_msg = "Creating Guides... (" + progressNum(83) + "%) " + self.name + "_guide"
+        print(progress_msg)
+        progresswin.textbox.append(progress_msg)
+        QApplication.processEvents()
         
     def createJoint(self, ik = False, rev = False):
         self.joint_pos = xform(self.name + "_guide", q = True, t = True, ws = True)
@@ -1120,7 +1177,10 @@ class Rig:
         hide (ls ('*_fk', type = 'joint'))
         hide (ls ('*_rev', type = 'joint'))
 
-        print("Creating Joints... (" + progressNum(240) + "%)"),
+        progress_msg = "Creating Joints... (" + progressNum(prognum) + "%) " + self.name
+        print(progress_msg)
+        progresswin.textbox.append(progress_msg)
+        QApplication.processEvents()
 
         return self
     
@@ -1146,7 +1206,10 @@ class Rig:
             elif not ik:
                 pass
         
-        print("Creating Joints... (" + progressNum(240) + "%)"),
+        progress_msg = "Creating Joints... (" + progressNum(prognum) + "%) " + self.name
+        print(progress_msg)
+        progresswin.textbox.append(progress_msg)
+        QApplication.processEvents()
 
     def createControl(self, r = 2, nr = "Y", fk = False):
         #Create circle
@@ -1233,7 +1296,10 @@ class Rig:
             else:
                 parentConstraint(self.name + "_ctrl", self.name, mo = False)
         
-        print("Creating Controllers... (" + progressNum(240) + "%)"),
+        progress_msg = "Creating Controllers... (" + progressNum(prognum) + "%) " + self.name + "_ctrl"
+        print(progress_msg)
+        progresswin.textbox.append(progress_msg)
+        QApplication.processEvents()
 
     def createIKControl(self, sj, ee, mj, rev = False):
         #Get start joint and end effector position and rotation
@@ -1339,7 +1405,10 @@ class Rig:
         connectAttr(self.name + '_ikfk_switch.outputX', self.name + '_FK_lttrShape.visibility', f = True)
         connectAttr(self.name + '_ikfk_switch.outputX', sj + '_fk_ctrl_offset.visibility', f = True)
 
-        print("Creating IK Controls... (" + progressNum(240) + "%)"),
+        progress_msg = "Creating IK Controls... (" + progressNum(prognum) + "%) " + self.name + "_ctrl"
+        print(progress_msg)
+        progresswin.textbox.append(progress_msg)
+        QApplication.processEvents()
 
     def createReverseControl(self, sj, ee, mj, bj):
         parent(sj + "_rev", self.parent + "_ik_ctrl")
@@ -1410,7 +1479,10 @@ class Rig:
         connectAttr(self.name + '_roll_multi.outputY', mj + '_rev.rotateZ')
         connectAttr(self.name + '_roll_multi.outputZ', ee + '_rev.rotateZ')
 
-        print("Creating Reverse Foot Controls... (" + progressNum(240) + "%)")
+        progress_msg = "Creating Reverse Foot Controls... (" + progressNum(prognum) + "%) " + self.name + "_ctrl"
+        print(progress_msg)
+        progresswin.textbox.append(progress_msg)
+        QApplication.processEvents()
 
 # SPINE #
 hip = Rig("hip", t = (0, 106.85, 2.652))
