@@ -28,11 +28,6 @@ namespace_layout.setSpacing(2)
 ctrledit_layout = QHBoxLayout()
 ctrledit_layout.setSpacing(2)
 
-def namespace_listsel():
-    #for i in textScrollList(namespace_listfield, q = True, si = True):
-        #textField(namespace_txtfield, e = True, tx = i)
-    pass
-
 class Window(MayaQWidgetDockableMixin, QDialog):
     def __init__(self):
         super(Window, self).__init__()
@@ -88,6 +83,7 @@ class UI():
     def drawCheckBox(self):
         self.gui = QCheckBox()
         self.gui.setText(self.label)
+        self.gui.setChecked(True)
         return self
 
     def drawComboBox(self):
@@ -360,7 +356,7 @@ def deleteRig(*args):
         delete(i)
     mel.eval('MLdeleteUnused;')
     namespace(rm = namespace_cmb.gui.currentText())
-    namespace_listappend()
+    namespace_list()
 
     print("Rig Deleted!")
 
@@ -379,14 +375,16 @@ def createPickerGUI():
     parent("guiData", namespace_cmb.gui.currentText() + ':rig')
 
 def createRig(*args):
-    namespace(add = namespace_cmb.gui.currentText())
+    namespace(add = namespace_cmb.gui.currentText(), f = True)
 
-    getMultipleSelections()
+    getSelection()
     
     group(n = namespace_cmb.gui.currentText() + ':rig', em = 	True)
     parent(namespace_cmb.gui.currentText() + ':rig', w = True)
-
-    createPickerGUI()
+    if createpickergui_chkbox.gui.isChecked():
+        createPickerGUI()
+    elif not createpickergui_chkbox.gui.isChecked():
+        pass
 
     root_ctrl = MakeNurbCircle(r = 50, n = "root_ctrl")
     root_ctrl.setNormalY(1)
@@ -795,16 +793,22 @@ def createRig(*args):
     #Hide Guides
     setAttr('guides.visibility', 0)
 
-    #GUI Data
-    addAttr("guiData", ln = "name", type = "string")
-    setAttr("guiData.name", namespace_cmb.gui.currentText(), type = "string")
+    if createpickergui_chkbox.gui.isChecked():
+        #GUI Data
+        addAttr("guiData", ln = "name", type = "string")
+        setAttr("guiData.name", namespace_cmb.gui.currentText(), type = "string")
 
-    allCtrl = ls("*_ctrl")
-    for i in allCtrl:
-        addAttr("guiData", ln = i + "_guiDataX")
-        addAttr("guiData", ln = i + "_guiDataY")
-        setAttr("guiData." + i + "_guiDataX", worldToScreen(xform(i, q = True, t = True, ws = True))[0])
-        setAttr("guiData." + i + "_guiDataY", worldToScreen(xform(i, q = True, t = True, ws = True))[1])
+        addAttr("guiData", ln = "isIK", type = "bool")
+        setAttr("guiData.isIK", createikctrl_chkbox.gui.isChecked())
+
+        allCtrl = ls("*_ctrl")
+        for i in allCtrl:
+            addAttr("guiData", ln = i + "_guiDataX")
+            addAttr("guiData", ln = i + "_guiDataY")
+            setAttr("guiData." + i + "_guiDataX", worldToScreen(xform(i, q = True, t = True, ws = True))[0])
+            setAttr("guiData." + i + "_guiDataY", worldToScreen(xform(i, q = True, t = True, ws = True))[1])
+    elif not createpickergui_chkbox.gui.isChecked():
+        pass
 
     #Set Namespace
     rigRelatives = listRelatives(namespace_cmb.gui.currentText() + ':rig', ad = True)
@@ -827,10 +831,13 @@ def createRig(*args):
     for x in multi:
         rename(x, namespace_cmb.gui.currentText() + ":" + x)
 
-    namespace_listappend()
+    namespace_list()
 
-    #Delete Playblast Camera
-    delete("picker_cam1")
+    if createpickergui_chkbox.gui.isChecked():
+        #Delete Playblast Camera
+        delete("picker_cam1")
+    elif not createpickergui_chkbox.gui.isChecked():
+        pass
 
     print("Rig Created!")
 
@@ -913,7 +920,7 @@ def editControlShape():
     xform('hip_ctrl.ep[2]', t = (0, 3.5, 0), r = True)
     xform('hip_ctrl.ep[0:8]', t = (0, (((l_thigh_pos[1] - l_knee_pos[1]) / 4) * -1), 0), s = (1, 1, 0.8), r = True)
 
-def getMultipleSelections():
+def getSelection():
     global charmodel
     charmodel = ls(sl = True)
 
@@ -970,12 +977,16 @@ deleterig_btn.drawButton(deleteRig).setLayout(settings_layout)
 
 window.layout.addStretch()
 
-nsinfo = namespaceInfo(lon = True, r = True)
-for i in nsinfo:
-    if(i != "UI" and i != "shared"):
-        namespace_cmb.gui.addItem(i)
-    else:
-        pass
+def namespace_list():
+    namespace_cmb.gui.clear()
+    nsinfo = namespaceInfo(lon = True, r = True)
+    for i in nsinfo:
+        if(i != "UI" and i != "shared"):
+            namespace_cmb.gui.addItem(i)
+        else:
+            pass
+
+namespace_list()
 
 # RIG #
 

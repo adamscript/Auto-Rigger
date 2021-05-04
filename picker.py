@@ -8,20 +8,37 @@ import maya.OpenMayaUI as OpenMayaUI
 from pymel.core import *
 
 import maya.OpenMaya as om
+from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 scriptJob(ka = True)
 
-window = QWidget()
-layout = QVBoxLayout()
-
-picker_bg = QLabel(window)
-
-header_layout = QHBoxLayout()
-footer_layout = QHBoxLayout()
+picker_bg = QLabel()
 
 namespace_label = QLabel()
 namespace_label.setText("Namespace :")
 namespace_label.setAlignment(Qt.AlignRight)
+
+class Window(MayaQWidgetDockableMixin, QDialog):
+    def __init__(self):
+        super(Window, self).__init__()
+        
+        # It is crucial we set a unique object name as this is used internally by Maya
+        self.setWindowTitle("Awan's Character Rig Picker GUI")
+        
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.header_layout = QHBoxLayout()
+        self.footer_layout = QHBoxLayout()
+    
+    def addLayout(self, layout):
+        self.layout.addLayout(layout)
+
+if __name__ == "__main__":
+    window = Window()
+    window.setFixedWidth(470)
+    window.setFixedHeight(560)
+    window.setWindowFlags(Qt.WindowStaysOnTopHint)
 
 def setNamespace():
     spine.move(offsetX = -60)
@@ -37,31 +54,109 @@ def setNamespace():
     l_clavicle.move()
     r_clavicle.move()
 
-    l_shoulder_fk.move()
-    l_elbow_fk.move()
-    l_wrist_fk.move()
-    r_shoulder_fk.move()
-    r_elbow_fk.move()
-    r_wrist_fk.move()
+    namespaceik = ls("*" + namespace_sel.currentText() + ":guiData", r = True)
+    for i in namespaceik:
+        if getAttr(i + ".isIK"):
+            l_shoulder_fk.show().move()
+            l_elbow_fk.show().move()
+            l_wrist_fk.show().move()
+            r_shoulder_fk.show().move()
+            r_elbow_fk.show().move()
+            r_wrist_fk.show().move()
 
-    l_arm_ikpole.move()
-    l_arm_ik.move()
-    r_arm_ikpole.move()
-    r_arm_ik.move()
+            l_arm_ikpole.show().move()
+            l_arm_ik.show().move()
+            r_arm_ikpole.show().move()
+            r_arm_ik.show().move()
 
-    l_thigh_fk.move()
-    l_knee_fk.move()
-    l_ankle_fk.move()
-    r_thigh_fk.move()
-    r_knee_fk.move()
-    r_ankle_fk.move()
+            l_thigh_fk.show().move()
+            l_knee_fk.show().move()
+            l_ankle_fk.show().move()
+            r_thigh_fk.show().move()
+            r_knee_fk.show().move()
+            r_ankle_fk.show().move()
 
-    l_leg_ikpole.move()
-    l_leg_ik.move()
-    r_leg_ikpole.move()
-    r_leg_ik.move()
+            l_leg_ikpole.show().move()
+            l_leg_ik.show().move()
+            r_leg_ikpole.show().move()
+            r_leg_ik.show().move()
 
-    ikfkuichange()
+            l_foot_ankle_fk.show()
+            r_foot_ankle_fk.show()
+
+            l_arm_ikfk_switch.show()
+            r_arm_ikfk_switch.show()
+            l_leg_ikfk_switch.show()
+            r_leg_ikfk_switch.show()
+
+            l_leg_ikfk_switch_select.show()
+            r_leg_ikfk_switch_select.show()
+
+            l_shoulder.hide()
+            l_elbow.hide()
+            l_wrist.hide()
+            r_shoulder.hide()
+            r_elbow.hide()
+            r_wrist.hide()
+
+            l_thigh.hide()
+            l_knee.hide()
+            l_ankle.hide()
+            r_thigh.hide()
+            r_knee.hide()
+            r_ankle.hide()
+
+            ikfkuichange()
+        elif not getAttr(i + ".isIK"):
+            l_shoulder.show().move()
+            l_elbow.show().move()
+            l_wrist.show().move()
+            r_shoulder.show().move()
+            r_elbow.show().move()
+            r_wrist.show().move()
+
+            l_thigh.show().move()
+            l_knee.show().move()
+            l_ankle.show().move()
+            r_thigh.show().move()
+            r_knee.show().move()
+            r_ankle.show().move()
+
+            l_shoulder_fk.hide()
+            l_elbow_fk.hide()
+            l_wrist_fk.hide()
+            r_shoulder_fk.hide()
+            r_elbow_fk.hide()
+            r_wrist_fk.hide()
+
+            l_arm_ikpole.hide()
+            l_arm_ik.hide()
+            r_arm_ikpole.hide()
+            r_arm_ik.hide()
+
+            l_thigh_fk.hide()
+            l_knee_fk.hide()
+            l_ankle_fk.hide()
+            r_thigh_fk.hide()
+            r_knee_fk.hide()
+            r_ankle_fk.hide()
+
+            l_leg_ikpole.hide()
+            l_leg_ik.hide()
+            r_leg_ikpole.hide()
+            r_leg_ik.hide()
+
+            l_foot_ankle_fk.hide()
+            r_foot_ankle_fk.hide()
+
+            l_arm_ikfk_switch.hide()
+            r_arm_ikfk_switch.hide()
+            l_leg_ikfk_switch.hide()
+            r_leg_ikfk_switch.hide()
+
+            l_leg_ikfk_switch_select.hide()
+            r_leg_ikfk_switch_select.hide()
+
     picker_bg.setPixmap(workspace(q = True, rd = True) + "images/" + namespace_sel.currentText() +'_pb.1.jpg')
 
 def ikfkuichange():
@@ -127,8 +222,13 @@ def ikfkuichange():
                 r_leg_ikpole.show()
                 r_leg_ik.show()
 
-for i in ls("*_ikfk_switch_ctrl", r = True):
-    scriptJob(ac = [i + '.IK_FK_switch', ikfkuichange])
+namespaceik = ls("*" + namespace_sel.currentText() + ":guiData", r = True)
+for i in namespaceik:
+    if getAttr(i + ".isIK"):
+        for i in ls("*_ikfk_switch_ctrl", r = True):
+            scriptJob(ac = [i + '.IK_FK_switch', ikfkuichange])
+    elif not getAttr(i + ".isIK"):
+        pass
 
 namespace_sel = QComboBox()
 namespace_list = ls("*guiData", r = True)
@@ -136,15 +236,12 @@ for i in namespace_list:
     namespace_sel.addItem(getAttr(i + ".name"))
 namespace_sel.activated.connect(setNamespace)
 
-header_layout.addWidget(namespace_label)
-header_layout.addWidget(namespace_sel)
+window.header_layout.addWidget(namespace_label)
+window.header_layout.addWidget(namespace_sel)
 
-layout.addLayout(header_layout)
-layout.addWidget(picker_bg)
-layout.addLayout(footer_layout)
-
-window.setLayout(layout)
-window.setWindowTitle("Awan's Character Rig Picker GUI")
+window.layout.addLayout(window.header_layout)
+window.layout.addWidget(picker_bg)
+window.layout.addLayout(window.footer_layout)
 
 class GUI():
 
@@ -163,7 +260,7 @@ class GUI():
         self.button = QPushButton()
         self.button.setText(txt)
         self.button.clicked.connect(command)
-        footer_layout.addWidget(self.button)
+        window.footer_layout.addWidget(self.button)
 
     def drawSelectionButton(self, posX = 0, posY = 0):
         if (self.shape == "square"):
@@ -237,9 +334,11 @@ class GUI():
 
     def hide(self):
         self.button.hide()
+        return self
     
     def show(self):
         self.button.show()
+        return self
 
 # UI #
 
@@ -311,6 +410,13 @@ eyesLookAt.drawSelectionButton(328, 110)
 l_clavicle = GUI("l_clavicle", "square", radius = 12, color = "#3d9b2f")
 r_clavicle = GUI("r_clavicle", "square", radius = 12, color = "#9b3b2f")
 
+l_shoulder = GUI("l_shoulder", "circle", radius = 20, color = "#3d9b2f")
+l_elbow = GUI("l_elbow", "circle", radius = 20, color = "#3d9b2f")
+l_wrist = GUI("l_wrist", "circle", radius = 20, color = "#3d9b2f")
+r_shoulder = GUI("r_shoulder", "circle", radius = 20, color = "#9b3b2f")
+r_elbow = GUI("r_elbow", "circle", radius = 20, color = "#9b3b2f")
+r_wrist = GUI("r_wrist", "circle", radius = 20, color = "#9b3b2f")
+
 l_shoulder_fk = GUI("l_shoulder_fk", "circle", radius = 20, color = "#3d9b2f")
 l_elbow_fk = GUI("l_elbow_fk", "circle", radius = 20, color = "#3d9b2f")
 l_wrist_fk = GUI("l_wrist_fk", "circle", radius = 20, color = "#3d9b2f")
@@ -325,6 +431,13 @@ r_arm_ik = GUI("r_arm_ik", "square", radius = 20, color = "#9b3b2f")
 
 l_clavicle.drawSelectionButton()
 r_clavicle.drawSelectionButton()
+
+l_shoulder.drawSelectionButton()
+l_elbow.drawSelectionButton()
+l_wrist.drawSelectionButton()
+r_shoulder.drawSelectionButton()
+r_elbow.drawSelectionButton()
+r_wrist.drawSelectionButton()
 
 l_shoulder_fk.drawSelectionButton()
 l_elbow_fk.drawSelectionButton()
@@ -508,6 +621,13 @@ r_finger_pinky_tip.drawSelectionButton(posX = 40, posY = 405)
 
 # LEGS #
 
+l_thigh = GUI("l_thigh", "circle", radius = 20, color = "#3d9b2f")
+l_knee = GUI("l_knee", "circle", radius = 20, color = "#3d9b2f")
+l_ankle = GUI("l_ankle", "circle", radius = 20, color = "#3d9b2f")
+r_thigh = GUI("r_thigh", "circle", radius = 20, color = "#9b3b2f")
+r_knee = GUI("r_knee", "circle", radius = 20, color = "#9b3b2f")
+r_ankle = GUI("r_ankle", "circle", radius = 20, color = "#9b3b2f")
+
 l_thigh_fk = GUI("l_thigh_fk", "circle", radius = 20, color = "#3d9b2f")
 l_knee_fk = GUI("l_knee_fk", "circle", radius = 20, color = "#3d9b2f")
 l_ankle_fk = GUI("l_ankle_fk", "circle", radius = 20, color = "#3d9b2f")
@@ -519,6 +639,13 @@ l_leg_ikpole = GUI("l_leg_ikpole", "circle", radius = 14, color = "#3d9b2f")
 l_leg_ik = GUI("l_leg_ik", "square", radius = 20, color = "#3d9b2f")
 r_leg_ikpole = GUI("r_leg_ikpole", "circle", radius = 14, color = "#9b3b2f")
 r_leg_ik = GUI("r_leg_ik", "square", radius = 20, color = "#9b3b2f")
+
+l_thigh.drawSelectionButton()
+l_knee.drawSelectionButton()
+l_ankle.drawSelectionButton()
+r_thigh.drawSelectionButton()
+r_knee.drawSelectionButton()
+r_ankle.drawSelectionButton()
 
 l_thigh_fk.drawSelectionButton()
 l_knee_fk.drawSelectionButton()
@@ -534,12 +661,18 @@ r_leg_ik.drawSelectionButton()
 
 # FOOT #
 
+l_foot_ankle = GUI("l_ankle", "rect", width = 55, height = 20, color = "#3d9b2f")
+r_foot_ankle = GUI("r_ankle", "rect", width = 55, height = 20, color = "#9b3b2f")
+
 l_foot_ankle_fk = GUI("l_ankle_fk", "rect", width = 55, height = 20, color = "#3d9b2f")
 l_foot_ball = GUI("l_foot_ball", "rect", width = 15, height = 15, color = "#3d9b2f")
 l_foot_toes = GUI("l_foot_toes", "rect", width = 20, height = 10, color = "#3d9b2f")
 r_foot_ankle_fk =GUI("r_ankle_fk", "rect", width = 55, height = 20, color = "#9b3b2f")
 r_foot_ball = GUI("r_foot_ball", "rect", width = 15, height = 15, color = "#9b3b2f")
 r_foot_toes = GUI("r_foot_toes", "rect", width = 20, height = 10, color = "#9b3b2f")
+
+l_foot_ankle.drawSelectionButton(370, 489)
+r_foot_ankle.drawSelectionButton(100, 489)
 
 l_foot_ankle_fk.drawSelectionButton(370, 489)
 l_foot_ball.drawSelectionButton(408, 492)
@@ -566,10 +699,8 @@ r_leg_ikfk_switch.drawToggleButton(110, 450)
 l_leg_ikfk_switch_select.drawSelectionButton(360, 472)
 r_leg_ikfk_switch_select.drawSelectionButton(110, 472)
 
-window.setFixedWidth(470)
-window.setFixedHeight(560)
 #print(window.frameGeometry().width())
 setNamespace()
 ikfkuichange()
-window.setWindowFlags(Qt.WindowStaysOnTopHint)
-window.show()
+
+window.show(dockable=True)
