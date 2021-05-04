@@ -8,7 +8,6 @@ from pymel.core.nodetypes import *
 import math
 import maya.cmds as cmds
 import maya.OpenMayaUI as OpenMayaUI
-from pymel.core import *
 
 import maya.OpenMaya as om
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
@@ -24,9 +23,6 @@ settings_layout = QVBoxLayout()
 
 namespace_layout = QHBoxLayout()
 namespace_layout.setSpacing(2)
-
-ctrledit_layout = QHBoxLayout()
-ctrledit_layout.setSpacing(2)
 
 class Window(MayaQWidgetDockableMixin, QDialog):
     def __init__(self):
@@ -75,6 +71,15 @@ class UI():
     def drawButton(self, command, height = 25):
         self.gui = QPushButton()
         self.gui.setText(self.label)
+        self.gui.setFixedHeight(height)
+        self.gui.clicked.connect(command)
+        window.layout.addWidget(self.gui)
+        return self
+
+    def drawToggleButton(self, command, height = 25):
+        self.gui = QPushButton()
+        self.gui.setText(self.label)
+        self.gui.setCheckable(True)
         self.gui.setFixedHeight(height)
         self.gui.clicked.connect(command)
         window.layout.addWidget(self.gui)
@@ -289,6 +294,8 @@ def createGuides(*args):
     r_foot_inner.createGuide(s = 5)
     r_foot_outer.createGuide(s = 5)
     
+    select(cl = True)
+
     print("Guides Created!")
 
 def mirrorGuides(*args):
@@ -335,11 +342,52 @@ def deleteGuides(*args):
 
     print("Guides Deleted!")
 
-def editControl(*args):
-    print("Control edited!")
-
+def componentMode(*args):
+    if componentmode_btn.gui.isChecked():
+        selectMode(co = True)
+        selectType(alc = True)
+        print("Control editing on!")
+    else:
+        selectMode(o = True)
+        print("Control editing off")
+    
 def mirrorControl(*args):
-    print("Control mirrored!")
+    selectedControl = ls(sl = True, l = True, r = True)
+
+    if not selectedControl:
+        om.MGlobal.displayError	("No control selected!")
+    else:
+        for x in selectedControl:
+            if (x.startswith(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_")):
+                
+                mirrorpos = xform(x + "Shape.cv[0:8]", q = True, t = True, ws = True)
+                
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[0]", t = (mirrorpos[21]*-1, mirrorpos[22], mirrorpos[23]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[1]", t = (mirrorpos[18]*-1, mirrorpos[19], mirrorpos[20]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[2]", t = (mirrorpos[15]*-1, mirrorpos[16], mirrorpos[17]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[3]", t = (mirrorpos[12]*-1, mirrorpos[13], mirrorpos[14]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[4]", t = (mirrorpos[9]*-1, mirrorpos[10], mirrorpos[11]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[5]", t = (mirrorpos[6]*-1, mirrorpos[7], mirrorpos[8]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[6]", t = (mirrorpos[3]*-1, mirrorpos[4], mirrorpos[5]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_" + x.partition("l_")[2] + "Shape.cv[7]", t = (mirrorpos[0]*-1, mirrorpos[1], mirrorpos[2]), ws = True)
+                
+                print("Control mirrored!")
+            elif (x.startswith(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":r_")):
+                
+                mirrorpos = xform(x + "Shape.cv[0:8]", q = True, t = True, ws = True)
+                
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[0]", t = (mirrorpos[21]*-1, mirrorpos[22], mirrorpos[23]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[1]", t = (mirrorpos[18]*-1, mirrorpos[19], mirrorpos[20]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[2]", t = (mirrorpos[15]*-1, mirrorpos[16], mirrorpos[17]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[3]", t = (mirrorpos[12]*-1, mirrorpos[13], mirrorpos[14]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[4]", t = (mirrorpos[9]*-1, mirrorpos[10], mirrorpos[11]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[5]", t = (mirrorpos[6]*-1, mirrorpos[7], mirrorpos[8]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[6]", t = (mirrorpos[3]*-1, mirrorpos[4], mirrorpos[5]), ws = True)
+                xform(x.partition(namespace_cmb.gui.currentText())[0] + namespace_cmb.gui.currentText() + ":l_" + x.partition("r_")[2] + "Shape.cv[7]", t = (mirrorpos[0]*-1, mirrorpos[1], mirrorpos[2]), ws = True)
+                
+                print("Control mirrored!")
+            else:
+                om.MGlobal.displayWarning("Selected control has no symmetry")
 
 def displayAxes(*args):
     selectedJoints = ls(type = 'joint', sl = True)
@@ -352,6 +400,12 @@ def displayAxes(*args):
         print("Axes Displayed!")
 
 def deleteRig(*args):
+    if not namespace_cmb.gui.currentText():
+        om.MGlobal.displayError("Select an existing Namespace!")
+        return
+    else:
+        pass
+
     for i in ls("*" + namespace_cmb.gui.currentText() + ":rig", r = True):
         delete(i)
     mel.eval('MLdeleteUnused;')
@@ -361,6 +415,7 @@ def deleteRig(*args):
     print("Rig Deleted!")
 
 def createPickerGUI():
+    setAttr('guides.visibility', 0)
     picker_cam = Camera(n = "picker_cam")
     #picker_cam.rename("picker_cam")
     picker_cam.setOrtho(orthoState = True)
@@ -375,6 +430,18 @@ def createPickerGUI():
     parent("guiData", namespace_cmb.gui.currentText() + ':rig')
 
 def createRig(*args):
+    if not namespace_cmb.gui.currentText():
+        om.MGlobal.displayError("Namespace must not be empty! (Try your character's name)")
+        return
+    else:
+        pass
+
+    if not ls(sl = True):
+        om.MGlobal.displayError("Select a character model!")
+        return
+    else:
+        pass
+
     namespace(add = namespace_cmb.gui.currentText(), f = True)
 
     getSelection()
@@ -728,7 +795,7 @@ def createRig(*args):
     elif not createrevctrl_chkbox.gui.isChecked():
         pass
     
-    editControlShape()
+    componentModeShape()
 
     parent("l_clavicle_ctrl_offset", 'collarbone_ctrl')
     parent("r_clavicle_ctrl_offset", 'collarbone_ctrl')
@@ -874,7 +941,7 @@ def worldToScreen(point):
 
     return screenPoint
 
-def editControlShape():
+def componentModeShape():
     #Eye_LookAt
     xform('l_eye_ctrl', t = (0, 15, 0), r = True)
     xform('r_eye_ctrl', t = (0, 15, 0), r = True)
@@ -935,7 +1002,7 @@ settings_frame = FrameLayout("Settings", window)
 
 deleterig_btn = UI(label = "Delete Rig")
 
-editctrl_btn = UI(label = "Edit Control Shape")
+componentmode_btn = UI(label = "Component Mode")
 mirrorctrl_btn = UI(label = "Mirror Control Shape")
 
 namespace_cmb = UI()
@@ -969,9 +1036,8 @@ createikctrl_chkbox.drawCheckBox().setLayout(settings_layout)
 createrevctrl_chkbox.drawCheckBox().setLayout(settings_layout)
 createpickergui_chkbox.drawCheckBox().setLayout(settings_layout)
 
-settings_layout.addLayout(ctrledit_layout)
-editctrl_btn.drawButton(editControl).setLayout(ctrledit_layout)
-mirrorctrl_btn.drawButton(mirrorControl).setLayout(ctrledit_layout)
+componentmode_btn.drawToggleButton(componentMode).setLayout(settings_layout)
+mirrorctrl_btn.drawButton(mirrorControl).setLayout(settings_layout)
 
 deleterig_btn.drawButton(deleteRig).setLayout(settings_layout)
 
@@ -1451,5 +1517,3 @@ r_leg = Rig("r_leg", p = "r_ankle")
 
 l_foot = Rig("l_foot", p = "l_leg")
 r_foot = Rig("r_foot", p = "r_leg")
-
-print(namespace_cmb.gui.currentText())
