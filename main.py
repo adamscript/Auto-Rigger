@@ -227,6 +227,26 @@ class FrameLayout(QGroupBox):
         painter.setBrush(currentBrush)#(8)
         painter.setPen(currentPen)
 
+def checkGuides():
+    if ls("*guides", r = True):
+        guides_btn.gui.setEnabled(False)
+        mirrorguides_btn.gui.setEnabled(True)
+        deleteguides_btn.gui.setEnabled(True)
+        autorig_btn.gui.setEnabled(True)
+    else:
+        guides_btn.gui.setEnabled(True)
+        mirrorguides_btn.gui.setEnabled(False)
+        deleteguides_btn.gui.setEnabled(False)
+        autorig_btn.gui.setEnabled(False)
+
+def checkRig():
+    if ls("*" + namespace_cmb.gui.currentText() + ":*rig", r = True):
+        mirrorctrl_btn.gui.setEnabled(True)
+        deleterig_btn.gui.setEnabled(True)
+    else:
+        mirrorctrl_btn.gui.setEnabled(False)
+        deleterig_btn.gui.setEnabled(False)
+        
 def createGuides(*args):
     progresswin.setWindowTitle("Awan is creating your guides...")
     progresswin.show()
@@ -328,6 +348,8 @@ def createGuides(*args):
     
     select(cl = True)
 
+    checkGuides()
+    checkRig()
     print("Guides Created!")
     progresswin.textbox.append("Guides Created!")
 
@@ -373,6 +395,8 @@ def deleteGuides(*args):
     global prog
     prog = 1
 
+    checkGuides()
+    checkRig()
     print("Guides Deleted!")
 
 def componentMode(*args):
@@ -445,6 +469,8 @@ def deleteRig(*args):
     namespace(rm = namespace_cmb.gui.currentText())
     namespace_list()
 
+    checkGuides()
+    checkRig()
     print("Rig Deleted!")
 
 def createPickerGUI():
@@ -454,7 +480,7 @@ def createPickerGUI():
     picker_cam.setOrtho(orthoState = True)
     bb = xform(charmodel, q = True, bb = True, ws = True)
     viewFit("picker_cam1")
-    setAttr('picker_camShape1.orthographicWidth', (bb[4]*105)/100)
+    setAttr('picker_camShape1.orthographicWidth', (max(bb)*105)/100)
     
     lookThru("picker_cam1")
     pb = playblast(st = 1, et = 1, fmt = 'image', f = workspace(q = True, rd = True) + "images/" + namespace_cmb.gui.currentText() + "_pb",  fp = 0, p = 10, c = 'jpg', qlt = 100, w = 450 * 10, h = 480 * 10, orn = False, v = False)
@@ -463,6 +489,12 @@ def createPickerGUI():
     parent("guiData", namespace_cmb.gui.currentText() + ':rig')
 
 def createRig(*args):
+    if not ls("*guides", r = True):
+        om.MGlobal.displayError("Can't create rig because you deleted the 'guides' object, please return it :(")
+        return
+    else:
+        pass
+    
     if not namespace_cmb.gui.currentText():
         om.MGlobal.displayError("Namespace must not be empty! (Try your character's name)")
         return
@@ -760,54 +792,54 @@ def createRig(*args):
     elif not createikctrl_chkbox.gui.isChecked():
         pass
 
-    l_finger_thumb_metacarpal.createControl()
+    l_finger_thumb_metacarpal.createControl(r = 1)
     l_finger_thumb_proximal.createControl()
     l_finger_thumb_distal.createControl()
     l_finger_thumb_tip.createControl()
-    r_finger_thumb_metacarpal.createControl()
+    r_finger_thumb_metacarpal.createControl(r = 1)
     r_finger_thumb_proximal.createControl()
     r_finger_thumb_distal.createControl()
     r_finger_thumb_tip.createControl()
     
-    l_finger_index_metacarpal.createControl()
+    l_finger_index_metacarpal.createControl(r = 1)
     l_finger_index_proximal.createControl()
     l_finger_index_middlep.createControl()
     l_finger_index_distal.createControl()
     l_finger_index_tip.createControl()
-    r_finger_index_metacarpal.createControl()
+    r_finger_index_metacarpal.createControl(r = 1)
     r_finger_index_proximal.createControl()
     r_finger_index_middlep.createControl()
     r_finger_index_distal.createControl()
     r_finger_index_tip.createControl()
     
-    l_finger_middlef_metacarpal.createControl()
+    l_finger_middlef_metacarpal.createControl(r = 1)
     l_finger_middlef_proximal.createControl()
     l_finger_middlef_middlep.createControl()
     l_finger_middlef_distal.createControl()
     l_finger_middlef_tip.createControl()
-    r_finger_middlef_metacarpal.createControl()
+    r_finger_middlef_metacarpal.createControl(r = 1)
     r_finger_middlef_proximal.createControl()
     r_finger_middlef_middlep.createControl()
     r_finger_middlef_distal.createControl()
     r_finger_middlef_tip.createControl()
     
-    l_finger_ring_metacarpal.createControl()
+    l_finger_ring_metacarpal.createControl(r = 1)
     l_finger_ring_proximal.createControl()
     l_finger_ring_middlep.createControl()
     l_finger_ring_distal.createControl()
     l_finger_ring_tip.createControl()
-    r_finger_ring_metacarpal.createControl()
+    r_finger_ring_metacarpal.createControl(r = 1)
     r_finger_ring_proximal.createControl()
     r_finger_ring_middlep.createControl()
     r_finger_ring_distal.createControl()
     r_finger_ring_tip.createControl()
     
-    l_finger_pinky_metacarpal.createControl()
+    l_finger_pinky_metacarpal.createControl(r = 1)
     l_finger_pinky_proximal.createControl()
     l_finger_pinky_middlep.createControl()
     l_finger_pinky_distal.createControl()
     l_finger_pinky_tip.createControl()
-    r_finger_pinky_metacarpal.createControl()
+    r_finger_pinky_metacarpal.createControl(r = 1)
     r_finger_pinky_proximal.createControl()
     r_finger_pinky_middlep.createControl()
     r_finger_pinky_distal.createControl()
@@ -842,7 +874,7 @@ def createRig(*args):
     elif not createrevctrl_chkbox.gui.isChecked():
         pass
     
-    componentModeShape()
+    editControlShape()
 
     parent("l_clavicle_ctrl_offset", 'collarbone_ctrl')
     parent("r_clavicle_ctrl_offset", 'collarbone_ctrl')
@@ -959,6 +991,8 @@ def createRig(*args):
     elif not createpickergui_chkbox.gui.isChecked():
         pass
 
+    checkRig()
+
     print("Rig Created!")
     progresswin.textbox.append("Rig Created!")
 
@@ -995,7 +1029,7 @@ def worldToScreen(point):
 
     return screenPoint
 
-def componentModeShape():
+def editControlShape():
     #Eye_LookAt
     xform('l_eye_ctrl', t = (0, 15, 0), r = True)
     xform('r_eye_ctrl', t = (0, 15, 0), r = True)
@@ -1090,12 +1124,25 @@ createikctrl_chkbox.drawCheckBox().setLayout(settings_layout)
 createrevctrl_chkbox.drawCheckBox().setLayout(settings_layout)
 createpickergui_chkbox.drawCheckBox().setLayout(settings_layout)
 
+def ikrevchkbox():
+    if createikctrl_chkbox.gui.isChecked():
+        createrevctrl_chkbox.gui.setChecked(True)
+        createrevctrl_chkbox.gui.setEnabled(True)
+    elif not createikctrl_chkbox.gui.isChecked():
+        createrevctrl_chkbox.gui.setChecked(False)
+        createrevctrl_chkbox.gui.setEnabled(False)
+
+createikctrl_chkbox.gui.clicked.connect(ikrevchkbox)
+
 componentmode_btn.drawToggleButton(componentMode).setLayout(settings_layout)
 mirrorctrl_btn.drawButton(mirrorControl).setLayout(settings_layout)
 
 deleterig_btn.drawButton(deleteRig).setLayout(settings_layout)
 
 window.layout.addStretch()
+
+checkGuides()
+checkRig()
 
 def namespace_list():
     namespace_cmb.gui.clear()
@@ -1212,9 +1259,6 @@ class Rig:
         QApplication.processEvents()
 
     def createControl(self, r = 2, nr = "Y", fk = False):
-        #Create circle
-        #self.guide = ls(self.name + "_guide")
-
         if fk:
             self.ctrl = MakeNurbCircle(r = r, n = self.name + "_fk_ctrl")
         elif not fk:
