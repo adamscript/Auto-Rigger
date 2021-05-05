@@ -1,3 +1,14 @@
+import sys
+import importlib
+sys.path.append('C:/Users/HP/Awan-Auto-Rigger/modules')
+
+importlib.reload(rig)
+importlib.reload(gui)
+importlib.reload(picker)
+from rig import *
+from gui import *
+from picker import *
+
 from PySide2.QtWidgets import *
 from PySide2.QtGui import *
 from PySide2.QtCore import*
