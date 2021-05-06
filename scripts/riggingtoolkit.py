@@ -40,7 +40,7 @@ class ToolkitWindow(MayaQWidgetDockableMixin, QDialog):
 
         self.menubar = QMenuBar(self)
         self.showmenu = self.menubar.addMenu("Show")
-        self.showmenu.addAction("Local Rotation Axes", displayAxes)
+        self.showmenu.addAction("Local Rotation Axes", self.displayAxes)
         self.showmenu.addSeparator()
         self.showmenu.addAction("Build Log", self.openlog)
         self.showmenu.addAction("Picker GUI", self.openpicker)
@@ -58,6 +58,16 @@ class ToolkitWindow(MayaQWidgetDockableMixin, QDialog):
     
     def addLayout(self, layout):
         self.layout.addLayout(layout)
+
+    def displayAxes(self):
+        selectedJoints = ls(type = 'joint', sl = True)
+
+        if not selectedJoints:
+            allJoints = ls(type = 'joint')
+            switch(allJoints, la = True)
+        else:
+            switch(selectedJoints, la = True)
+            print("Axes Displayed!")
 
     def openlog(self):
         progresswin.show()
@@ -475,16 +485,6 @@ def mirrorControl(*args):
                 print("Control mirrored!")
             else:
                 om.MGlobal.displayWarning("Selected control has no symmetry")
-
-def displayAxes(*args):
-    selectedJoints = ls(type = 'joint', sl = True)
-
-    if not selectedJoints:
-        allJoints = ls(type = 'joint')
-        switch(allJoints, la = True)
-    else:
-        switch(selectedJoints, la = True)
-        print("Axes Displayed!")
 
 def deleteRig(*args):
     if not namespace_cmb.gui.currentText():
