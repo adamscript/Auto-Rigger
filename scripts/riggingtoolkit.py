@@ -42,6 +42,7 @@ class ToolkitWindow(MayaQWidgetDockableMixin, QDialog):
         self.showmenu = self.menubar.addMenu("Show")
         self.showmenu.addAction("Local Rotation Axes", displayAxes)
         self.showmenu.addSeparator()
+        self.showmenu.addAction("Build Log", self.openlog)
         self.showmenu.addAction("Picker GUI", self.openpicker)
         
         self.addmenu = self.menubar.addMenu("Help")
@@ -58,6 +59,9 @@ class ToolkitWindow(MayaQWidgetDockableMixin, QDialog):
     def addLayout(self, layout):
         self.layout.addLayout(layout)
 
+    def openlog(self):
+        progresswin.show()
+    
     def openpicker(self):
         import picker
         picker.pickerwin.show(dockable = True)
@@ -86,6 +90,7 @@ window = ToolkitWindow()
 class ProgressWindow(MayaQWidgetDockableMixin, QDialog):
     def __init__(self):
         super(ProgressWindow, self).__init__()
+        self.setWindowTitle("Build Log")
         self.setFixedWidth(450)
         self.setModal(True)
 
@@ -107,7 +112,6 @@ class ProgressWindow(MayaQWidgetDockableMixin, QDialog):
         self.layout.addWidget(self.textbox)
 
     def close(self):
-        self.textbox.clear()
         self.done(True)
 
 progresswin = ProgressWindow()
@@ -272,6 +276,8 @@ def checkRig():
         deleterig_btn.gui.setEnabled(False)
         
 def createGuides(*args):
+    progresswin.textbox.clear()
+    
     progresswin.setWindowTitle("Awan is creating your guides...")
     progresswin.show()
     
@@ -538,6 +544,8 @@ def createRig(*args):
             pass
     else:
         pass
+    
+    progresswin.textbox.clear()
 
     global prognum
     prognum = 333
@@ -1019,7 +1027,8 @@ def createRig(*args):
         delete("picker_cam1")
     elif not createpickergui_chkbox.gui.isChecked():
         pass
-
+    
+    checkGuides()
     checkRig()
 
     import picker
