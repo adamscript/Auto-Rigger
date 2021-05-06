@@ -9,6 +9,7 @@ How to install :
 2. Extract it (you can do it wherever you want)
 
 Now you have two options:  
+
 3. Run install.bat (for windows, this file will do the steps below automatically)
 
 or
@@ -42,7 +43,7 @@ e.g.
 
 - /usr/autodesk/modules/Maya
 
-More about this [here] (https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2020/ENU/Maya-EnvVar/files/GUID-228CCA33-4AFE-4380-8C3D-18D23F7EAC72-htm.html) and [here](https://help.autodesk.com/view/MAYAUL/2016/ENU/?guid=__files_GUID_CB76E356_753B_4837_8C5B_3296C14872CA_htm)
+More about this [here](https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2020/ENU/Maya-EnvVar/files/GUID-228CCA33-4AFE-4380-8C3D-18D23F7EAC72-htm.html) and [here](https://help.autodesk.com/view/MAYAUL/2016/ENU/?guid=__files_GUID_CB76E356_753B_4837_8C5B_3296C14872CA_htm)
 
 After having done all that, launch Maya (or restart Maya if you already had it opened). If you see the menu for "Awto Rigger" on the menu bar, you have successfully installed Awan's Auto Rigging Toolkit + Picker GUI!
 
