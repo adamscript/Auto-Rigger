@@ -8,7 +8,7 @@ How to install :
 1. Clone/download the zip file
 2. Extract it (you can do it wherever you want)
 
-Now you have two options:
+Now you have two options:  
 3. Run install.bat (for windows, this file will do the steps below automatically)
 
 or
@@ -18,7 +18,7 @@ or
 
 e.g.
 
-    > ''' + AwtoRigger 1.0 C:\Users\awwwan\Awan-Auto-Rigger'''
+    > + AwtoRigger 1.0 C:\Users\awwwan\Awan-Auto-Rigger
 
 5. Move the .mod file into one of these directory :
 
