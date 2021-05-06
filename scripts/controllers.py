@@ -73,22 +73,22 @@ class Controller:
 		#Parent Constraint
         self.ctrl.ParentConstraint(pc)
 
-    def createIKControl(self, sj, ee, mj):
+    def createIKControl(self, type, base, sj, ee, mj, rev = False):
     	#Get start joint and end effector position and rotation
-    	self.sj_pos = Transform().getTranslation(ls(sj))
-    	self.ee_pos = Transform().getTranslation(ls(ee))
-    	self.ee_rot = Transform().getRotation(ls(ee))
+    	self.sj_pos = xform(sj, q = True, t = True, ws = True)
+    	self.ee_pos = xform(ee, q = True, t = True, ws = True)
+    	self.ee_rot = xform(mj, q = True, t = True, ws = True)
     	#Create IK Control Circle
     	self.ctrl = MakeNurbCircle(r = 10, n = self.name + "_ik_ctrl")
-    	self.ctrl_offset = MakeGroup(n = self.name + "_ik_ctrl_offset", em = True)
-    	self.ctrl.Parent(self.ctrl_offset)
-    	self.ctrl_offset.Transform().setTranslation(self.ee_pos)
-    	self.ctrl_offset.Transform().setRotation(self.ee_rot)
+    	self.ctrl_offset = group(n = self.name + "_ik_ctrl_offset", em = True)
+    	self.ctrl.setParent(self.ctrl_offset)
+    	self.ctrl_offset.setTranslation(self.ee_pos)
+    	self.ctrl_offset.setRotation(self.ee_rot)
 
-    	self.ctrl_offset.Parent(self.parent)
+    	#self.ctrl_offset.setParent(self.parent)
     	#Create IK Handle
-    	self.ikhandle = IkHandle(n = self.name + "_ikHandle", sj = sj, ee = ee)
-    	self.ikhandle.Parent(self.parent)
+    	self.ikhandle = ikHandle(n = self.name + "_ikHandle", sj = sj + "_ik", ee = ee + "_ik")
+    	self.ikhandle.setParent(self.parent)
     	#Create IK Pole
     	self.ikpole = MakeNurbSphere(r = 3, n = self.name + "_ikPole")
     	self.ikpole.Attribute().setAttr('makeNurbSphere1.sections', 4)
@@ -141,7 +141,7 @@ class Controller:
         self.fktextshape.Attribute().setAttr(self.name + "_FK_lttrShape.overrideEnabled", 1)
         self.fktextshape.Attribute().setAttr(self.name + "_FK_lttrShape.overrideDisplayType", 2)
 
-        #Create ikfk offset
+        #Create ikfk toggle offset
         self.iktoggle_offset = MakeGroup(n = self.name + "_ikfk_toggle_ctrl_offset")
         self.iktoggle.Parent(self.iktoggle_offset)
         self.iktoggle_offset.Transform().setTranslation(ls(ee))
@@ -171,7 +171,11 @@ class Controller:
         self.iktoggle_reverse.outputX.connect(self.fktextshape.visibility, f = True)
         self.iktoggle_reverse.outputX.connect((ls(sj + "_fk_ctrl_offset")).visibility, f = True)
 
-	def edit()
+        #IK FK Systems
+        self.ikbase = ls(base + "_ctrl")
+        self.ikbase.ParentConstraint(ls(self.name + "_ik_fk"))
+
+	def editControl():
 		#Edit control
 
 		#COLLARBONE

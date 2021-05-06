@@ -85,10 +85,15 @@ class Joint:
 
 			self.jointIK.ParentConstraint(self.name)
 			self.jointFK.ParentConstraint(self.name)
+
+			self.jointIK.hide()
+			self.jointFK.hide()
 		else if(ik == False):
 			pass
 
 		if(rev == True):
 			self.jointrev = joint(radius = 1, p = self.guide.getTranslation(), n = self.name + "_rev")
+
+			self.jointrev.hide()
 		else if(rev == False):
 			pass
