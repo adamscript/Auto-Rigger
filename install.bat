@@ -1,3 +1,4 @@
-import sys, os
+echo.>awtorigger.mod + AwtoRigger 1.0 %CD%
 
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+echo Awan's Auto Rigging Toolkit + Picker GUI Succesfully Installed!
+pause
