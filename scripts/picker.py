@@ -18,13 +18,17 @@ namespace_label.setAlignment(Qt.AlignRight)
 
 namespace_sel = QComboBox()
 
-class Window(MayaQWidgetDockableMixin, QDialog):
+class PickerWindow(MayaQWidgetDockableMixin, QDialog):
     def __init__(self):
-        super(Window, self).__init__()
+        super(PickerWindow, self).__init__()
         
         # It is crucial we set a unique object name as this is used internally by Maya
         self.setWindowTitle("Awan's Character Rig Picker GUI")
         
+        self.setFixedWidth(470)
+        self.setFixedHeight(560)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
@@ -34,130 +38,388 @@ class Window(MayaQWidgetDockableMixin, QDialog):
     def addLayout(self, layout):
         self.layout.addLayout(layout)
 
-if __name__ == "__main__":
-    window = Window()
-    window.setFixedWidth(470)
-    window.setFixedHeight(560)
-    window.setWindowFlags(Qt.WindowStaysOnTopHint)
+pickerwin = PickerWindow()
 
 def setNamespace():
-    spine_gui.move(offsetX = -60)
-    
-    hip_gui.move()
-    waist_gui.move()
-    chest_gui.move()
-    collarbone_gui.move()
+    if ls("*guiData", r = True):
+        spine_gui.show().move(offsetX = -60)
+        
+        hip_gui.show().move()
+        waist_gui.show().move()
+        chest_gui.show().move()
+        collarbone_gui.show().move()
 
-    head_gui.move(offsetX = -70)
-    jaw_gui.move()
+        head_gui.show().move(offsetX = -70)
+        jaw_gui.show().move()
 
-    l_clavicle_gui.move()
-    r_clavicle_gui.move()
+        l_eye_gui.show()
+        r_eye_gui.show()
+        eyesLookAt_gui.show()
 
-    namespaceik = ls("*" + namespace_sel.currentText() + ":guiData", r = True)
-    for i in namespaceik:
-        if getAttr(i + ".isIK"):
-            l_shoulder_fk_gui.show().move()
-            l_elbow_fk_gui.show().move()
-            l_wrist_fk_gui.show().move()
-            r_shoulder_fk_gui.show().move()
-            r_elbow_fk_gui.show().move()
-            r_wrist_fk_gui.show().move()
+        l_clavicle_gui.show().move()
+        r_clavicle_gui.show().move()
 
-            l_arm_ikpole_gui.show().move()
-            l_arm_ik_gui.show().move()
-            r_arm_ikpole_gui.show().move()
-            r_arm_ik_gui.show().move()
+        l_fingers_thumb_gui.show()
+        l_fingers_index_gui.show()
+        l_fingers_middlef_gui.show()
+        l_fingers_ring_gui.show()
+        l_fingers_pinky_gui.show()
 
-            l_thigh_fk_gui.show().move()
-            l_knee_fk_gui.show().move()
-            l_ankle_fk_gui.show().move()
-            r_thigh_fk_gui.show().move()
-            r_knee_fk_gui.show().move()
-            r_ankle_fk_gui.show().move()
+        l_fingers_metacarpal_gui.show()
+        l_fingers_proximal_gui.show()
+        l_fingers_middlep_gui.show()
+        l_fingers_distal_gui.show()
+        l_fingers_tip_gui.show()
 
-            l_leg_ikpole_gui.show().move()
-            l_leg_ik_gui.show().move()
-            r_leg_ikpole_gui.show().move()
-            r_leg_ik_gui.show().move()
+        l_finger_thumb_metacarpal_gui.show()
+        l_finger_thumb_proximal_gui.show()
+        l_finger_thumb_distal_gui.show()
+        l_finger_thumb_tip_gui.show()
 
-            l_foot_ankle_fk_gui.show()
-            r_foot_ankle_fk_gui.show()
+        l_finger_index_metacarpal_gui.show()
+        l_finger_index_proximal_gui.show()
+        l_finger_index_middlep_gui.show()
+        l_finger_index_distal_gui.show()
+        l_finger_index_tip_gui.show()
 
-            l_arm_ikfk_switch_gui.show()
-            r_arm_ikfk_switch_gui.show()
-            l_leg_ikfk_switch_gui.show()
-            r_leg_ikfk_switch_gui.show()
+        l_finger_middlef_metacarpal_gui.show()
+        l_finger_middlef_proximal_gui.show()
+        l_finger_middlef_middlep_gui.show()
+        l_finger_middlef_distal_gui.show()
+        l_finger_middlef_tip_gui.show()
 
-            l_leg_ikfk_switch_select_gui.show()
-            r_leg_ikfk_switch_select_gui.show()
+        l_finger_ring_metacarpal_gui.show()
+        l_finger_ring_proximal_gui.show()
+        l_finger_ring_middlep_gui.show()
+        l_finger_ring_distal_gui.show()
+        l_finger_ring_tip_gui.show()
 
-            l_shoulder_gui.hide()
-            l_elbow_gui.hide()
-            l_wrist_gui.hide()
-            r_shoulder_gui.hide()
-            r_elbow_gui.hide()
-            r_wrist_gui.hide()
+        l_finger_pinky_metacarpal_gui.show()
+        l_finger_pinky_proximal_gui.show()
+        l_finger_pinky_middlep_gui.show()
+        l_finger_pinky_distal_gui.show()
+        l_finger_pinky_tip_gui.show()
 
-            l_thigh_gui.hide()
-            l_knee_gui.hide()
-            l_ankle_gui.hide()
-            r_thigh_gui.hide()
-            r_knee_gui.hide()
-            r_ankle_gui.hide()
+        r_fingers_thumb_gui.show()
+        r_fingers_index_gui.show()
+        r_fingers_middlef_gui.show()
+        r_fingers_ring_gui.show()
+        r_fingers_pinky_gui.show()
 
-            ikfkuichange()
-        elif not getAttr(i + ".isIK"):
-            l_shoulder_gui.show().move()
-            l_elbow_gui.show().move()
-            l_wrist_gui.show().move()
-            r_shoulder_gui.show().move()
-            r_elbow_gui.show().move()
-            r_wrist_gui.show().move()
+        r_fingers_metacarpal_gui.show()
+        r_fingers_proximal_gui.show()
+        r_fingers_middlep_gui.show()
+        r_fingers_distal_gui.show()
+        r_fingers_tip_gui.show()
 
-            l_thigh_gui.show().move()
-            l_knee_gui.show().move()
-            l_ankle_gui.show().move()
-            r_thigh_gui.show().move()
-            r_knee_gui.show().move()
-            r_ankle_gui.show().move()
+        r_finger_thumb_metacarpal_gui.show()
+        r_finger_thumb_proximal_gui.show()
+        r_finger_thumb_distal_gui.show()
+        r_finger_thumb_tip_gui.show()
 
-            l_shoulder_fk_gui.hide()
-            l_elbow_fk_gui.hide()
-            l_wrist_fk_gui.hide()
-            r_shoulder_fk_gui.hide()
-            r_elbow_fk_gui.hide()
-            r_wrist_fk_gui.hide()
+        r_finger_index_metacarpal_gui.show()
+        r_finger_index_proximal_gui.show()
+        r_finger_index_middlep_gui.show()
+        r_finger_index_distal_gui.show()
+        r_finger_index_tip_gui.show()
 
-            l_arm_ikpole_gui.hide()
-            l_arm_ik_gui.hide()
-            r_arm_ikpole_gui.hide()
-            r_arm_ik_gui.hide()
+        r_finger_middlef_metacarpal_gui.show()
+        r_finger_middlef_proximal_gui.show()
+        r_finger_middlef_middlep_gui.show()
+        r_finger_middlef_distal_gui.show()
+        r_finger_middlef_tip_gui.show()
 
-            l_thigh_fk_gui.hide()
-            l_knee_fk_gui.hide()
-            l_ankle_fk_gui.hide()
-            r_thigh_fk_gui.hide()
-            r_knee_fk_gui.hide()
-            r_ankle_fk_gui.hide()
+        r_finger_ring_metacarpal_gui.show()
+        r_finger_ring_proximal_gui.show()
+        r_finger_ring_middlep_gui.show()
+        r_finger_ring_distal_gui.show()
+        r_finger_ring_tip_gui.show()
 
-            l_leg_ikpole_gui.hide()
-            l_leg_ik_gui.hide()
-            r_leg_ikpole_gui.hide()
-            r_leg_ik_gui.hide()
+        r_finger_pinky_metacarpal_gui.show()
+        r_finger_pinky_proximal_gui.show()
+        r_finger_pinky_middlep_gui.show()
+        r_finger_pinky_distal_gui.show()
+        r_finger_pinky_tip_gui.show()
 
-            l_foot_ankle_fk_gui.hide()
-            r_foot_ankle_fk_gui.hide()
+        l_foot_ankle_gui.show()
+        r_foot_ankle_gui.show()
 
-            l_arm_ikfk_switch_gui.hide()
-            r_arm_ikfk_switch_gui.hide()
-            l_leg_ikfk_switch_gui.hide()
-            r_leg_ikfk_switch_gui.hide()
+        l_foot_ankle_fk_gui.show()
+        l_foot_ball_gui.show()
+        l_foot_toes_gui.show()
+        r_foot_ankle_fk_gui.show()
+        r_foot_ball_gui.show()
+        r_foot_toes_gui.show()
 
-            l_leg_ikfk_switch_select_gui.hide()
-            r_leg_ikfk_switch_select_gui.hide()
+        namespaceik = ls("*" + namespace_sel.currentText() + ":guiData", r = True)
+        for i in namespaceik:
+            if getAttr(i + ".isIK"):
+                l_shoulder_fk_gui.show().move()
+                l_elbow_fk_gui.show().move()
+                l_wrist_fk_gui.show().move()
+                r_shoulder_fk_gui.show().move()
+                r_elbow_fk_gui.show().move()
+                r_wrist_fk_gui.show().move()
 
-    picker_bg.setPixmap(workspace(q = True, rd = True) + "images/" + namespace_sel.currentText() +'_pb.1.jpg')
+                l_arm_ikpole_gui.show().move()
+                l_arm_ik_gui.show().move()
+                r_arm_ikpole_gui.show().move()
+                r_arm_ik_gui.show().move()
+
+                l_thigh_fk_gui.show().move()
+                l_knee_fk_gui.show().move()
+                l_ankle_fk_gui.show().move()
+                r_thigh_fk_gui.show().move()
+                r_knee_fk_gui.show().move()
+                r_ankle_fk_gui.show().move()
+
+                l_leg_ikpole_gui.show().move()
+                l_leg_ik_gui.show().move()
+                r_leg_ikpole_gui.show().move()
+                r_leg_ik_gui.show().move()
+
+                l_foot_ankle_fk_gui.show()
+                r_foot_ankle_fk_gui.show()
+
+                l_arm_ikfk_switch_gui.show()
+                r_arm_ikfk_switch_gui.show()
+                l_leg_ikfk_switch_gui.show()
+                r_leg_ikfk_switch_gui.show()
+
+                l_leg_ikfk_switch_select_gui.show()
+                r_leg_ikfk_switch_select_gui.show()
+
+                l_shoulder_gui.hide()
+                l_elbow_gui.hide()
+                l_wrist_gui.hide()
+                r_shoulder_gui.hide()
+                r_elbow_gui.hide()
+                r_wrist_gui.hide()
+
+                l_thigh_gui.hide()
+                l_knee_gui.hide()
+                l_ankle_gui.hide()
+                r_thigh_gui.hide()
+                r_knee_gui.hide()
+                r_ankle_gui.hide()
+
+                ikfkuichange()
+            elif not getAttr(i + ".isIK"):
+                l_shoulder_gui.show().move()
+                l_elbow_gui.show().move()
+                l_wrist_gui.show().move()
+                r_shoulder_gui.show().move()
+                r_elbow_gui.show().move()
+                r_wrist_gui.show().move()
+
+                l_thigh_gui.show().move()
+                l_knee_gui.show().move()
+                l_ankle_gui.show().move()
+                r_thigh_gui.show().move()
+                r_knee_gui.show().move()
+                r_ankle_gui.show().move()
+
+                l_shoulder_fk_gui.hide()
+                l_elbow_fk_gui.hide()
+                l_wrist_fk_gui.hide()
+                r_shoulder_fk_gui.hide()
+                r_elbow_fk_gui.hide()
+                r_wrist_fk_gui.hide()
+
+                l_arm_ikpole_gui.hide()
+                l_arm_ik_gui.hide()
+                r_arm_ikpole_gui.hide()
+                r_arm_ik_gui.hide()
+
+                l_thigh_fk_gui.hide()
+                l_knee_fk_gui.hide()
+                l_ankle_fk_gui.hide()
+                r_thigh_fk_gui.hide()
+                r_knee_fk_gui.hide()
+                r_ankle_fk_gui.hide()
+
+                l_leg_ikpole_gui.hide()
+                l_leg_ik_gui.hide()
+                r_leg_ikpole_gui.hide()
+                r_leg_ik_gui.hide()
+
+                l_foot_ankle_fk_gui.hide()
+                r_foot_ankle_fk_gui.hide()
+
+                l_arm_ikfk_switch_gui.hide()
+                r_arm_ikfk_switch_gui.hide()
+                l_leg_ikfk_switch_gui.hide()
+                r_leg_ikfk_switch_gui.hide()
+
+                l_leg_ikfk_switch_select_gui.hide()
+                r_leg_ikfk_switch_select_gui.hide()
+
+        picker_bg.setPixmap(workspace(q = True, rd = True) + "images/" + namespace_sel.currentText() +'_pb.1.jpg')
+    elif not ls("*guiData", r = True):
+        print("NO GUI DATA")
+        
+        spine_gui.hide()
+        
+        hip_gui.hide()
+        waist_gui.hide()
+        chest_gui.hide()
+        collarbone_gui.hide()
+
+        root_gui.hide()
+        ctrlgrp_gui.hide()
+
+        head_gui.hide()
+        jaw_gui.hide()
+
+        l_eye_gui.hide()
+        r_eye_gui.hide()
+        eyesLookAt_gui.hide()
+
+        l_clavicle_gui.hide()
+        r_clavicle_gui.hide()
+        
+        l_shoulder_gui.hide()
+        l_elbow_gui.hide()
+        l_wrist_gui.hide()
+        r_shoulder_gui.hide()
+        r_elbow_gui.hide()
+        r_wrist_gui.hide()
+
+        l_thigh_gui.hide()
+        l_knee_gui.hide()
+        l_ankle_gui.hide()
+        r_thigh_gui.hide()
+        r_knee_gui.hide()
+        r_ankle_gui.hide()
+
+        l_shoulder_fk_gui.hide()
+        l_elbow_fk_gui.hide()
+        l_wrist_fk_gui.hide()
+        r_shoulder_fk_gui.hide()
+        r_elbow_fk_gui.hide()
+        r_wrist_fk_gui.hide()
+
+        l_fingers_thumb_gui.hide()
+        l_fingers_index_gui.hide()
+        l_fingers_middlef_gui.hide()
+        l_fingers_ring_gui.hide()
+        l_fingers_pinky_gui.hide()
+
+        l_fingers_metacarpal_gui.hide()
+        l_fingers_proximal_gui.hide()
+        l_fingers_middlep_gui.hide()
+        l_fingers_distal_gui.hide()
+        l_fingers_tip_gui.hide()
+
+        l_finger_thumb_metacarpal_gui.hide()
+        l_finger_thumb_proximal_gui.hide()
+        l_finger_thumb_distal_gui.hide()
+        l_finger_thumb_tip_gui.hide()
+
+        l_finger_index_metacarpal_gui.hide()
+        l_finger_index_proximal_gui.hide()
+        l_finger_index_middlep_gui.hide()
+        l_finger_index_distal_gui.hide()
+        l_finger_index_tip_gui.hide()
+
+        l_finger_middlef_metacarpal_gui.hide()
+        l_finger_middlef_proximal_gui.hide()
+        l_finger_middlef_middlep_gui.hide()
+        l_finger_middlef_distal_gui.hide()
+        l_finger_middlef_tip_gui.hide()
+
+        l_finger_ring_metacarpal_gui.hide()
+        l_finger_ring_proximal_gui.hide()
+        l_finger_ring_middlep_gui.hide()
+        l_finger_ring_distal_gui.hide()
+        l_finger_ring_tip_gui.hide()
+
+        l_finger_pinky_metacarpal_gui.hide()
+        l_finger_pinky_proximal_gui.hide()
+        l_finger_pinky_middlep_gui.hide()
+        l_finger_pinky_distal_gui.hide()
+        l_finger_pinky_tip_gui.hide()
+
+        r_fingers_thumb_gui.hide()
+        r_fingers_index_gui.hide()
+        r_fingers_middlef_gui.hide()
+        r_fingers_ring_gui.hide()
+        r_fingers_pinky_gui.hide()
+
+        r_fingers_metacarpal_gui.hide()
+        r_fingers_proximal_gui.hide()
+        r_fingers_middlep_gui.hide()
+        r_fingers_distal_gui.hide()
+        r_fingers_tip_gui.hide()
+
+        r_finger_thumb_metacarpal_gui.hide()
+        r_finger_thumb_proximal_gui.hide()
+        r_finger_thumb_distal_gui.hide()
+        r_finger_thumb_tip_gui.hide()
+
+        r_finger_index_metacarpal_gui.hide()
+        r_finger_index_proximal_gui.hide()
+        r_finger_index_middlep_gui.hide()
+        r_finger_index_distal_gui.hide()
+        r_finger_index_tip_gui.hide()
+
+        r_finger_middlef_metacarpal_gui.hide()
+        r_finger_middlef_proximal_gui.hide()
+        r_finger_middlef_middlep_gui.hide()
+        r_finger_middlef_distal_gui.hide()
+        r_finger_middlef_tip_gui.hide()
+
+        r_finger_ring_metacarpal_gui.hide()
+        r_finger_ring_proximal_gui.hide()
+        r_finger_ring_middlep_gui.hide()
+        r_finger_ring_distal_gui.hide()
+        r_finger_ring_tip_gui.hide()
+
+        r_finger_pinky_metacarpal_gui.hide()
+        r_finger_pinky_proximal_gui.hide()
+        r_finger_pinky_middlep_gui.hide()
+        r_finger_pinky_distal_gui.hide()
+        r_finger_pinky_tip_gui.hide()
+
+        l_arm_ikpole_gui.hide()
+        l_arm_ik_gui.hide()
+        r_arm_ikpole_gui.hide()
+        r_arm_ik_gui.hide()
+
+        l_thigh_fk_gui.hide()
+        l_knee_fk_gui.hide()
+        l_ankle_fk_gui.hide()
+        r_thigh_fk_gui.hide()
+        r_knee_fk_gui.hide()
+        r_ankle_fk_gui.hide()
+
+        l_leg_ikpole_gui.hide()
+        l_leg_ik_gui.hide()
+        r_leg_ikpole_gui.hide()
+        r_leg_ik_gui.hide()
+
+        l_foot_ankle_fk_gui.hide()
+        r_foot_ankle_fk_gui.hide()
+
+        l_arm_ikfk_switch_gui.hide()
+        r_arm_ikfk_switch_gui.hide()
+        l_leg_ikfk_switch_gui.hide()
+        r_leg_ikfk_switch_gui.hide()
+
+        l_leg_ikfk_switch_select_gui.hide()
+        r_leg_ikfk_switch_select_gui.hide()
+
+        l_foot_ankle_gui.hide()
+        r_foot_ankle_gui.hide()
+
+        l_foot_ankle_fk_gui.hide()
+        l_foot_ball_gui.hide()
+        l_foot_toes_gui.hide()
+        r_foot_ankle_fk_gui.hide()
+        r_foot_ball_gui.hide()
+        r_foot_toes_gui.hide()
+
+        picker_bg.setPixmap(None)
 
 def ikfkuichange():
     for x in ls("*" + namespace_sel.currentText() + ":*_ikfk_switch_ctrl"):
@@ -238,14 +500,13 @@ def getNamespace_list():
 
 getNamespace_list()
 namespace_sel.activated.connect(setNamespace)
-#namespace_sel.highlighted.connect(getNamespace_list)
 
-window.header_layout.addWidget(namespace_label)
-window.header_layout.addWidget(namespace_sel)
+pickerwin.header_layout.addWidget(namespace_label)
+pickerwin.header_layout.addWidget(namespace_sel)
 
-window.layout.addLayout(window.header_layout)
-window.layout.addWidget(picker_bg)
-window.layout.addLayout(window.footer_layout)
+pickerwin.layout.addLayout(pickerwin.header_layout)
+pickerwin.layout.addWidget(picker_bg)
+pickerwin.layout.addLayout(pickerwin.footer_layout)
 
 class GUI():
 
@@ -264,37 +525,37 @@ class GUI():
         self.button = QPushButton()
         self.button.setText(txt)
         self.button.clicked.connect(command)
-        window.footer_layout.addWidget(self.button)
+        pickerwin.footer_layout.addWidget(self.button)
 
     def drawSelectionButton(self, posX = 0, posY = 0):
         if (self.shape == "square"):
-            self.button = QPushButton(window)
+            self.button = QPushButton(pickerwin)
             self.button.setText(self.text)
             self.button.setGeometry(posX - (self.radius/2), posY - (self.radius/2), self.radius, self.radius)
             self.button.setStyleSheet("background-color: " + self.color + ";")
             self.button.clicked.connect(self.selection)
         elif(self.shape == "rect"):
-            self.button = QPushButton(window)
+            self.button = QPushButton(pickerwin)
             self.button.setText(self.text)
             self.button.setGeometry(posX - (self.width/2), posY - (self.height/2), self.width, self.height)
             self.button.setStyleSheet("background-color: " + self.color + ";")
             self.button.clicked.connect(self.selection)
         elif(self.shape == "circle"):
-            self.button = QPushButton(window)
+            self.button = QPushButton(pickerwin)
             self.button.setText(self.text)
             self.button.setGeometry(posX - (self.radius/2), posY - (self.radius/2), self.radius, self.radius)
             self.button.setStyleSheet("background-color: " + self.color + "; border-radius: " + str(self.radius/2) + "px;")
             self.button.clicked.connect(self.selection)
 
     def drawMultipleSelectionButton(self, posX = 0, posY = 0):
-        self.button = QPushButton(window)
+        self.button = QPushButton(pickerwin)
         self.button.setText(self.text)
         self.button.setGeometry(posX - (self.radius/2), posY - (self.radius/2), self.radius, self.radius)
         self.button.setStyleSheet("background-color: " + self.color + "; border-radius: " + str(self.radius/2) + "px;")
         self.button.clicked.connect(self.multipleSelection)
 
     def drawToggleButton(self, posX = 0, posY = 0):
-        self.button = QPushButton(window)
+        self.button = QPushButton(pickerwin)
         self.button.setText(self.text)
         self.button.setGeometry(posX - (self.radius/2), posY - (self.radius/2), self.radius, self.radius)
         self.button.setStyleSheet("background-color: " + self.color + "; font-size : 15px; font-weight : bold;")
@@ -703,8 +964,11 @@ r_leg_ikfk_switch_gui.drawToggleButton(110, 450)
 l_leg_ikfk_switch_select_gui.drawSelectionButton(360, 472)
 r_leg_ikfk_switch_select_gui.drawSelectionButton(110, 472)
 
-#print(window.frameGeometry().width())
+#print(pickerwin.frameGeometry().width())
 setNamespace()
 ikfkuichange()
 
-window.show(dockable=True)
+#pickerwin.show(dockable=True)
+
+def helloitsme():
+    print("hello from the other side")
