@@ -2,7 +2,7 @@
 
 For my college final project, I created an Auto Rigger which can be used with Autodesk Maya to speed up the rigging process for humanoid 3d characters.
 
-*Currently working on the documentation*  
+*Currently fixing bugs and working on the documentation*  
 
 How to install :
 1. Clone/download the zip file
