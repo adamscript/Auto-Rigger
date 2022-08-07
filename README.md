@@ -58,7 +58,7 @@ $MAYA_APP_DIR/Maya/modules
 
 More about this [here](https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2020/ENU/Maya-EnvVar/files/GUID-228CCA33-4AFE-4380-8C3D-18D23F7EAC72-htm.html) and [here](https://help.autodesk.com/view/MAYAUL/2016/ENU/?guid=__files_GUID_CB76E356_753B_4837_8C5B_3296C14872CA_htm)  
 
-### Usage
+## Usage
 
 1. **Launch Maya** (or restart Maya if you already have it opened). 
 2. If everything was set up correctly, you should see the menu for `Awto Rigger` on the menu bar.
@@ -84,6 +84,10 @@ Optional GUI for controller selection. Locations of the buttons will be adjusted
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/69242299/183229016-7a32fdc0-a975-4730-b97c-96ff5eb6dc30.png" alt="autorigger_picker_screenshot" />
+</p>
+
+<p align="center">
+  <img width="600" src="https://user-images.githubusercontent.com/69242299/183294091-6879443f-c2c4-41ab-a9a7-6712d541fb60.png" alt="autorigger_pickerresults_screenshot" />
 </p>
 
 ## Reflection
